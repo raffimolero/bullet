@@ -16,11 +16,12 @@ opt-level = 3
 [dependencies]
 
 [dependencies.bevy]
-version = "0.11.0"
+version = "0.11.2"
 default-features = false
 features = [
   "dynamic_linking",
   "bevy_winit",
   "bevy_render",
   "bevy_sprite",
+  "bevy_gizmos",
 ] 
