@@ -53,7 +53,7 @@ fn start_level(
             y: 0.0,
             w: SIZE * 2.0,
             h: SIZE * 2.0,
-            color: Color::ALICE_BLUE,
+            color: Color::BLUE,
             ..default()
         }
         .bundle(),
@@ -63,7 +63,6 @@ fn start_level(
     // load level
     match level.0 {
         0 => {
-            println!("asdf");
             commands.spawn((
                 Enemy,
                 Bullet,
@@ -79,7 +78,24 @@ fn start_level(
                     ..default()
                 }
                 .bundle(),
-                Vel(Vec2::new(0.0, -5.0)),
+                Vel(Vec2::new(0.0, -50.0)),
+            ));
+            commands.spawn((
+                Enemy,
+                Bullet,
+                BodyDamage(1),
+                GameEntity,
+                HitRadius(SIZE),
+                Blocc {
+                    x: 0.0,
+                    y: 500.0,
+                    w: SIZE * 2.0,
+                    h: SIZE * 2.0,
+                    color: Color::RED,
+                    ..default()
+                }
+                .bundle(),
+                Vel(Vec2::new(0.0, -50.0)),
             ));
         }
         _ => {}

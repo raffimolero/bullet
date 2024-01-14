@@ -6,11 +6,11 @@ pub mod prelude {
         bullet::{Bullet, Lifespan},
         enemy::Enemy,
         level::{Level, SelectLevel},
-        logic::{BodyDamage, HitRadius, Hp, Vel},
+        logic::{motion, BodyDamage, HitRadius, Hp, Vel},
         player::{Ghost, Player},
         GState,
     };
-    pub use std::time::Instant;
+    pub use std::time::{Duration, Instant};
 }
 use prelude::*;
 
