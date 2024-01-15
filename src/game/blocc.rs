@@ -1,5 +1,9 @@
 use bevy::prelude::*;
 
+pub mod prelude {
+    pub use super::Blocc;
+}
+
 pub struct Plug;
 impl Plugin for Plug {
     fn build(&self, app: &mut App) {

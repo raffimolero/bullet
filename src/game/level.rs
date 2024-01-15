@@ -1,6 +1,10 @@
-use super::prelude::*;
+use crate::game::prelude::*;
 
 use bevy::prelude::*;
+
+pub mod prelude {
+    pub use super::{Level, SelectLevel};
+}
 
 pub struct Plug;
 impl Plugin for Plug {
@@ -41,23 +45,7 @@ fn start_level(
     const SIZE: f32 = 10.0;
 
     // spawn player
-    commands.spawn((
-        Player,
-        GameEntity,
-        Hp(3),
-        BodyDamage(1),
-        HitRadius(SIZE),
-        Vel(Vec2::default()),
-        Blocc {
-            x: 0.0,
-            y: 0.0,
-            w: SIZE * 2.0,
-            h: SIZE * 2.0,
-            color: Color::BLUE,
-            ..default()
-        }
-        .bundle(),
-    ));
+    commands.spawn(PlayerBundle::default());
 
     println!("{level:?}");
     // load level
@@ -67,7 +55,7 @@ fn start_level(
                 Enemy,
                 Bullet,
                 BodyDamage(1),
-                GameEntity,
+                Mob,
                 HitRadius(SIZE),
                 Blocc {
                     x: 0.0,
@@ -84,7 +72,7 @@ fn start_level(
                 Enemy,
                 Bullet,
                 BodyDamage(1),
-                GameEntity,
+                Mob,
                 HitRadius(SIZE),
                 Blocc {
                     x: 0.0,
@@ -102,10 +90,7 @@ fn start_level(
     }
 }
 
-#[derive(Component)]
-pub struct GameEntity;
-
-fn end_level(mut commands: Commands, entities: Query<Entity, With<GameEntity>>) {
+fn end_level(mut commands: Commands, entities: Query<Entity, With<Mob>>) {
     entities.for_each(|id| {
         commands.entity(id).despawn_recursive();
     });

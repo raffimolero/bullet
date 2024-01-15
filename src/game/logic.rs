@@ -1,11 +1,16 @@
-use super::prelude::*;
+use crate::game::prelude::*;
 
 use bevy::prelude::*;
+
+pub mod prelude {
+    pub use super::{motion, BodyDamage, GState, HitRadius, Hp, Vel};
+}
 
 pub struct Plug;
 impl Plugin for Plug {
     fn build(&self, app: &mut App) {
-        app.add_event::<Restart>()
+        app.add_state::<GState>()
+            .add_event::<Restart>()
             .add_systems(Startup, setup)
             .add_systems(
                 Update,
@@ -18,8 +23,17 @@ impl Plugin for Plug {
     }
 }
 
-fn setup(mut commands: Commands) {
+#[derive(States, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum GState {
+    #[default]
+    Dead,
+    Waiting,
+    InGame,
+}
+
+fn setup(mut commands: Commands, mut select: EventWriter<SelectLevel>) {
     commands.spawn(Camera2dBundle::default());
+    select.send(SelectLevel(Level(0)));
 }
 
 #[derive(Event)]
