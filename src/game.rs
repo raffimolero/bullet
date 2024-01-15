@@ -5,7 +5,10 @@ pub mod prelude {
         blocc::prelude::*, level::prelude::*, logic::prelude::*, mob::prelude::*,
         weapon::prelude::*,
     };
-    pub use std::time::{Duration, Instant};
+    pub use std::{
+        f32::consts::TAU,
+        time::{Duration, Instant},
+    };
 }
 use prelude::*;
 
@@ -18,6 +21,6 @@ pub mod weapon;
 pub struct Plug;
 impl Plugin for Plug {
     fn build(&self, app: &mut App) {
-        app.add_plugins((logic::Plug, level::Plug, mob::Plug));
+        app.add_plugins((logic::Plug, level::Plug, mob::Plug, weapon::Plug));
     }
 }

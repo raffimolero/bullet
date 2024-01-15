@@ -42,8 +42,6 @@ fn start_level(
 ) {
     next_state.set(GState::InGame);
 
-    const SIZE: f32 = 10.0;
-
     // spawn player
     commands.spawn(PlayerBundle::default());
 
@@ -56,12 +54,12 @@ fn start_level(
                 Bullet,
                 BodyDamage(1),
                 Mob,
-                HitRadius(SIZE),
+                HitRadius(UNIT),
                 Blocc {
                     x: 0.0,
                     y: 250.0,
-                    w: SIZE * 2.0,
-                    h: SIZE * 2.0,
+                    w: UNIT * 2.0,
+                    h: UNIT * 2.0,
                     color: Color::RED,
                     ..default()
                 }
@@ -73,12 +71,12 @@ fn start_level(
                 Bullet,
                 BodyDamage(1),
                 Mob,
-                HitRadius(SIZE),
+                HitRadius(UNIT),
                 Blocc {
                     x: 0.0,
                     y: 500.0,
-                    w: SIZE * 2.0,
-                    h: SIZE * 2.0,
+                    w: UNIT * 2.0,
+                    h: UNIT * 2.0,
                     color: Color::RED,
                     ..default()
                 }

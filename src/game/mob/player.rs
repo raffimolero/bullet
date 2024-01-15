@@ -40,7 +40,6 @@ pub struct PlayerBundle {
 
 impl Default for PlayerBundle {
     fn default() -> Self {
-        const SIZE: f32 = 10.0;
         Self {
             player: Player,
             control: Control,
@@ -49,13 +48,13 @@ impl Default for PlayerBundle {
             mob: Mob,
             hp: Hp(3),
             body_damage: BodyDamage(1),
-            hit_radius: HitRadius(SIZE),
+            hit_radius: HitRadius(UNIT),
             vel: Vel(Vec2::default()),
             sprite: Blocc {
                 x: 0.0,
                 y: 0.0,
-                w: SIZE * 2.0,
-                h: SIZE * 2.0,
+                w: UNIT * 2.0,
+                h: UNIT * 2.0,
                 color: Color::BLUE,
                 ..default()
             }

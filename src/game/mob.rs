@@ -5,6 +5,7 @@ use bevy::prelude::*;
 pub mod prelude {
     pub use super::{
         effect::prelude::*, enemy::prelude::*, player::prelude::*, BodyDamage, HitRadius, Hp, Mob,
+        UNIT,
     };
 }
 
@@ -18,6 +19,8 @@ impl Plugin for Plug {
         app.add_plugins((player::Plug, enemy::Plug, effect::Plug));
     }
 }
+
+pub const UNIT: f32 = 10.0;
 
 #[derive(Component)]
 pub struct Mob;
