@@ -42,6 +42,11 @@ impl Default for PlayerBundle {
     fn default() -> Self {
         const SIZE: f32 = 10.0;
         Self {
+            player: Player,
+            control: Control,
+            weapon: Weapon::default(),
+            weapon_type: WeaponType::Basic,
+            mob: Mob,
             hp: Hp(3),
             body_damage: BodyDamage(1),
             hit_radius: HitRadius(SIZE),
@@ -55,7 +60,6 @@ impl Default for PlayerBundle {
                 ..default()
             }
             .bundle(),
-            ..default()
         }
     }
 }
