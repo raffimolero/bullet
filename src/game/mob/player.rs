@@ -28,6 +28,8 @@ impl Plugin for Plug {
 pub struct PlayerBundle {
     player: Player,
     control: Control,
+    weapon: Weapon,
+    weapon_type: WeaponType,
     mob: Mob,
     hp: Hp,
     body_damage: BodyDamage,
@@ -40,9 +42,6 @@ impl Default for PlayerBundle {
     fn default() -> Self {
         const SIZE: f32 = 10.0;
         Self {
-            player: Player,
-            control: Control,
-            mob: Mob,
             hp: Hp(3),
             body_damage: BodyDamage(1),
             hit_radius: HitRadius(SIZE),
@@ -56,6 +55,7 @@ impl Default for PlayerBundle {
                 ..default()
             }
             .bundle(),
+            ..default()
         }
     }
 }

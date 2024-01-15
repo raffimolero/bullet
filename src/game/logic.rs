@@ -3,7 +3,7 @@ use crate::game::prelude::*;
 use bevy::prelude::*;
 
 pub mod prelude {
-    pub use super::{motion, BodyDamage, GState, HitRadius, Hp, Vel};
+    pub use super::{motion, GState, Vel};
 }
 
 pub struct Plug;
@@ -63,12 +63,3 @@ pub fn motion(time: Res<Time>, mut movers: Query<(&Vel, &mut Transform)>) {
         tf.translation += vel.0.extend(0.0) * delta;
     });
 }
-
-#[derive(Component, Default)]
-pub struct Hp(pub i32);
-
-#[derive(Component)]
-pub struct BodyDamage(pub i32);
-
-#[derive(Component)]
-pub struct HitRadius(pub f32);
