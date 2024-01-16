@@ -11,7 +11,9 @@ impl Plugin for Plug {
             Update,
             (
                 control.before(motion),
-                (hit_player_with_bullet, player_death).after(motion).chain(),
+                (hit_player_with_bullet.before(super::hit_mob), player_death)
+                    .after(motion)
+                    .chain(),
             )
                 .run_if(in_state(GState::InGame)),
         );
@@ -84,39 +86,6 @@ fn hit_player_with_bullet(
         }
     }
 }
-
-// fn hit_player(
-//     mut commands: Commands,
-//     mut player: Query<(Entity, &mut Hp, &mut Sprite, &Mob), With<Player>>,
-//     mut hit_events: EventReader<DamagePlayer>,
-//     mut death_events: EventWriter<MobDeath>,
-//     mut p_death_events: EventWriter<PlayerDeath>,
-// ) {
-//     let Ok((p_id, mut hp, sprite, p_mob)) = player.get_single_mut() else {
-//         return;
-//     };
-//     if hp.0 <= 0 {
-//         return;
-//     }
-
-//     let dmg = hit_events.read().map(|dmg| dmg.0).max().unwrap_or(0);
-//     if dmg == 0 {
-//         return;
-//     }
-
-//     commands
-//         .entity(p_id)
-//         .insert(IFramePack::new(sprite.color).bundle());
-
-//     hp.0 -= dmg;
-//     if hp.0 <= 0 {
-//         death_events.send(MobDeath {
-//             id: p_id,
-//             mob: *p_mob,
-//         });
-//         p_death_events.send(PlayerDeath)
-//     }
-// }
 
 #[derive(Event)]
 pub struct PlayerDeath;
