@@ -22,7 +22,7 @@ impl Plugin for Plug {
             .add_plugins((player::Plug, enemy::Plug, effect::Plug))
             .add_systems(
                 Update,
-                (hit_mob, hurt_mob, mob_death, mob_death_2)
+                (hit_mob, hurt_mob, mob_death)
                     .chain()
                     .run_if(in_state(GState::InGame)),
             );
@@ -99,7 +99,7 @@ pub struct MobHit {
 
 fn hit_mob(
     mut commands: Commands,
-    mut hit_mobs: Query<(&mut DamageTaken, &Sprite, Option<&PhaseShell>)>,
+    mut hit_mobs: Query<(&mut DamageTaken, &Sprite, Option<&PhaseShell>), Without<Ghost>>,
     hitter_mobs: Query<&HitDamage>,
     mut hit_events: EventReader<MobHit>,
 ) {
@@ -166,16 +166,9 @@ fn mob_death(
         }
     };
     for death in death_events.read() {
-        println!("id: {:?}", death.id);
         if Some(death.id) == player {
             p_death_events.send(PlayerDeath);
         }
         commands.entity(death.id).despawn_recursive();
-    }
-}
-
-fn mob_death_2(mut death_events: EventReader<MobDeath>) {
-    for death in death_events.read() {
-        println!("id 2: {:?}", death.id);
     }
 }

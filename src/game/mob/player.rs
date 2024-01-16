@@ -62,6 +62,7 @@ fn control(
     vel.0 = mov;
 }
 
+// TODO: GlobalTransform
 fn hit_player_with_bullet(
     hit: Query<(Entity, &Transform, &HitRadius), (With<Player>, Without<Ghost>)>,
     hitters: Query<(Entity, &Transform, &HitRadius), (With<Enemy>, Without<Ghost>)>,

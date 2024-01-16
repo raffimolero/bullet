@@ -39,26 +39,13 @@ impl Weapon {
     pub fn fire(self, commands: &mut Commands, transform: Transform, team: Team) {
         match self {
             Weapon::Basic => {
-                let mut blocc = Blocc {
-                    w: UNIT * 2.0,
-                    h: UNIT * 2.0,
-                    color: Color::RED,
-                    ..default()
-                }
-                .bundle();
-                blocc.transform = transform;
                 let vel = transform.with_translation(Vec3::ZERO) * Vec3::new(0.0, 50.0, 0.0);
-                let bullet = commands
-                    .spawn((
-                        Bullet,
-                        HitDamage(1),
-                        Mob::Pellet,
-                        HitRadius(UNIT),
-                        blocc,
-                        Vel(vel.truncate()),
-                    ))
-                    .id();
+                let bullet = commands.spawn(()).id();
+                Mob::Pellet.attach(commands, bullet);
                 team.attach(commands, bullet);
+                commands
+                    .entity(bullet)
+                    .insert((transform, Vel(vel.truncate())));
             }
         }
     }
@@ -75,10 +62,10 @@ fn fire(
     mut weapons: Query<(&Transform, &mut WeaponState, &Weapon, &Team)>,
 ) {
     let now = Instant::now();
-    weapons.for_each_mut(|(tf, mut wpn, wpn_ty, team)| {
-        if wpn.firing && now > wpn.next_available {
-            wpn_ty.fire(&mut commands, *tf, *team);
-            wpn.next_available = now + wpn_ty.cooldown();
+    weapons.for_each_mut(|(tf, mut wpn_st, wpn, team)| {
+        if wpn_st.firing && now > wpn_st.next_available {
+            wpn.fire(&mut commands, *tf, *team);
+            wpn_st.next_available = now + wpn.cooldown();
         }
     });
 }

@@ -66,7 +66,7 @@ impl From<Mob> for Hp {
         use Mob::*;
         Self(match value {
             Pellet => 1,
-            Dart => 10,
+            Dart => 3,
         })
     }
 }

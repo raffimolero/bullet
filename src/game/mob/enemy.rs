@@ -17,6 +17,7 @@ impl Plugin for Plug {
 #[derive(Component, Clone, Copy)]
 pub struct Enemy;
 
+// TODO: GlobalTransform
 fn hit_enemy_with_bullet(
     mut hit: Query<(Entity, &Transform, &HitRadius), (With<Enemy>, Without<Ghost>)>,
     hitters: Query<(Entity, &Transform, &HitRadius), (With<Player>, Without<Ghost>)>,
