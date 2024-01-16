@@ -13,10 +13,10 @@ impl Plugin for Plug {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub struct Bullet;
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub struct Weapon {
     pub cooldown: Duration,
     pub next_available: Instant,
@@ -40,7 +40,7 @@ pub enum WeaponType {
 }
 
 impl WeaponType {
-    pub fn fire(self, commands: &mut Commands, transform: Transform) {
+    pub fn fire(self, commands: &mut Commands, transform: Transform, team: Team) {
         match self {
             WeaponType::Basic => {
                 let mut blocc = Blocc {
@@ -52,15 +52,17 @@ impl WeaponType {
                 .bundle();
                 blocc.transform = transform;
                 let vel = transform.with_translation(Vec3::ZERO) * Vec3::new(0.0, 50.0, 0.0);
-                commands.spawn((
-                    Enemy,
-                    Bullet,
-                    BodyDamage(1),
-                    Mob,
-                    HitRadius(UNIT),
-                    blocc,
-                    Vel(vel.truncate()),
-                ));
+                let bullet = commands
+                    .spawn((
+                        Bullet,
+                        BodyDamage(1),
+                        Mob,
+                        HitRadius(UNIT),
+                        blocc,
+                        Vel(vel.truncate()),
+                    ))
+                    .id();
+                team.attach(commands, bullet);
             }
         }
     }
@@ -72,12 +74,12 @@ impl WeaponType {
     }
 }
 
-fn fire(mut commands: Commands, mut weapons: Query<(&Transform, &mut Weapon, &WeaponType)>) {
+fn fire(mut commands: Commands, mut weapons: Query<(&Transform, &mut Weapon, &WeaponType, &Team)>) {
     let now = Instant::now();
-    weapons.for_each_mut(|(tf, mut wpn, wpn_ty)| {
+    weapons.for_each_mut(|(tf, mut wpn, wpn_ty, team)| {
         println!("test");
         if wpn.firing && now > wpn.next_available {
-            wpn_ty.fire(&mut commands, *tf);
+            wpn_ty.fire(&mut commands, *tf, *team);
             wpn.next_available += wpn_ty.cooldown();
         }
     });

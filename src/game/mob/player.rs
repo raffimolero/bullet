@@ -14,6 +14,10 @@ impl Plugin for Plug {
             .add_systems(
                 Update,
                 (
+                    if hp.0 <= 0 {
+                        return;
+                    }
+
                     control.before(motion),
                     (hit_player_with_bullet, hit_player, player_death)
                         .after(motion)
@@ -27,6 +31,7 @@ impl Plugin for Plug {
 #[derive(Bundle)]
 pub struct PlayerBundle {
     player: Player,
+    team: Team,
     control: Control,
     weapon: Weapon,
     weapon_type: WeaponType,
@@ -41,6 +46,7 @@ pub struct PlayerBundle {
 impl Default for PlayerBundle {
     fn default() -> Self {
         Self {
+            team: Team::Player,
             player: Player,
             control: Control,
             weapon: Weapon::default(),
@@ -63,10 +69,10 @@ impl Default for PlayerBundle {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub struct Player;
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub struct Control;
 
 fn control(mut player: Query<(&mut Vel, &mut Weapon), With<Control>>, keys: Res<Input<KeyCode>>) {
@@ -101,7 +107,7 @@ fn hit_player_with_bullet(
         (&Transform, &HitRadius, &BodyDamage),
         (With<Enemy>, With<Bullet>, Without<Ghost>),
     >,
-    mut hit_events: EventWriter<DamagePlayer>,
+    mut hit_events: EventWriter<DamageMob>,
 ) {
     for (a_id, a_tf, a_hr) in hit.iter() {
         for (b_tf, b_hr, b_dmg) in hitters.iter() {
@@ -122,14 +128,19 @@ pub struct DamagePlayer(i32);
 
 fn hit_player(
     mut commands: Commands,
-    mut player: Query<(Entity, &mut Hp, &mut Sprite), With<Player>>,
+    mut player: Query<(Entity, &mut Hp, &mut Sprite, &MobType), With<Player>>,
     mut hit_events: EventReader<DamagePlayer>,
-    mut death_events: EventWriter<PlayerDeath>,
+    mut death_events: EventWriter<MobDeath>,
+    mut p_death_events: EventWriter<PlayerDeath>,
 ) {
-    let Ok((p_id, mut hp, mut sprite)) = player.get_single_mut() else {
+    let Ok((p_id, mut hp, sprite, p_mob)) = player.get_single_mut() else {
         return;
     };
-    let dmg = hit_events.into_iter().map(|dmg| dmg.0).max().unwrap_or(0);
+    if hp.0 <= 0 {
+        return;
+    }
+
+    let dmg = hit_events.read().map(|dmg| dmg.0).max().unwrap_or(0);
     if dmg == 0 {
         return;
     }
@@ -140,7 +151,11 @@ fn hit_player(
 
     hp.0 -= dmg;
     if hp.0 <= 0 {
-        death_events.send(PlayerDeath)
+        death_events.send(MobDeath {
+            id: p_id,
+            mob: *p_mob,
+        });
+        p_death_events.send(PlayerDeath)
     }
 }
 
@@ -156,6 +171,4 @@ fn player_death(
         return;
     }
     death_events.clear();
-
-    commands.entity(player.single()).despawn_recursive();
 }

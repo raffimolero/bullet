@@ -50,6 +50,7 @@ fn start_level(
     match level.0 {
         0 => {
             commands.spawn((
+                Team::Enemy,
                 Enemy,
                 Bullet,
                 BodyDamage(1),
@@ -67,6 +68,7 @@ fn start_level(
                 Vel(Vec2::new(0.0, -50.0)),
             ));
             commands.spawn((
+                Team::Enemy,
                 Enemy,
                 Bullet,
                 BodyDamage(1),

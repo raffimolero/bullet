@@ -3,7 +3,7 @@ use crate::game::prelude::*;
 use bevy::prelude::*;
 
 pub mod prelude {
-    pub use super::{Flashing, Ghost, IFramePack, Lifespan};
+    pub use super::{Flashing, Ghost, IFramePack, Lifespan, PhaseShell};
 }
 
 pub struct Plug;
@@ -26,6 +26,19 @@ fn lifespan(mut commands: Commands, objects: Query<(Entity, &Lifespan)>) {
             commands.entity(entity).despawn_recursive();
         }
     });
+}
+
+/// A status effect that gives IFrames when hit.
+#[derive(Component, Clone, Copy)]
+pub struct PhaseShell {
+    min_dmg: i32,
+    max_dmg: i32,
+}
+
+impl PhaseShell {
+    pub fn clamp(self, dmg: i32) -> i32 {
+        dmg.clamp(self.min_dmg, self.max_dmg)
+    }
 }
 
 #[derive(Component)]
