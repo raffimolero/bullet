@@ -1,9 +1,7 @@
-use crate::game::prelude::*;
-
-use bevy::prelude::*;
+use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::{Control, Player, PlayerBundle, PlayerDeath};
+    pub use super::{Control, Player, PlayerDeath};
 }
 
 pub struct Plug;
@@ -20,52 +18,20 @@ impl Plugin for Plug {
     }
 }
 
-#[derive(Bundle)]
-pub struct PlayerBundle {
-    player: Player,
-    team: Team,
-    control: Control,
-    weapon_state: WeaponState,
-    weapon: Weapon,
-    mob: Mob,
-    hp: Hp,
-    body_damage: HitDamage,
-    hit_radius: HitRadius,
-    vel: Vel,
-    sprite: SpriteBundle,
-}
-
-impl Default for PlayerBundle {
-    fn default() -> Self {
-        Self {
-            mob: Mob::Dart,
-            team: Team::Player,
-            player: Player,
-            control: Control,
-            weapon: Weapon::Basic,
-            weapon_state: WeaponState::default(),
-            hp: Hp(3),
-            body_damage: HitDamage(1),
-            hit_radius: HitRadius(UNIT),
-            vel: Vel(Vec2::default()),
-            sprite: Blocc {
-                x: 0.0,
-                y: 0.0,
-                w: UNIT * 2.0,
-                h: UNIT * 2.0,
-                color: Color::BLUE,
-                ..default()
-            }
-            .bundle(),
-        }
-    }
-}
-
 #[derive(Component, Clone, Copy)]
 pub struct Player;
 
 #[derive(Component, Clone, Copy)]
 pub struct Control;
+
+impl Pack for Control {
+    fn attach(self, commands: &mut Commands, entity: Entity) {
+        commands
+            .entity(entity)
+            .insert((self, PhaseShell::default()));
+        Team::Player.attach(commands, entity);
+    }
+}
 
 fn control(
     mut player: Query<(&mut Vel, &mut WeaponState), With<Control>>,
@@ -98,7 +64,7 @@ fn control(
 
 fn hit_player_with_bullet(
     hit: Query<(Entity, &Transform, &HitRadius), (With<Player>, Without<Ghost>)>,
-    hitters: Query<(Entity, &Transform, &HitRadius), (With<Enemy>, With<Bullet>, Without<Ghost>)>,
+    hitters: Query<(Entity, &Transform, &HitRadius), (With<Enemy>, Without<Ghost>)>,
     mut hit_events: EventWriter<MobHit>,
 ) {
     for (a_id, a_tf, a_hr) in hit.iter() {

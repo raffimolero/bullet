@@ -1,6 +1,4 @@
-use crate::game::prelude::*;
-
-use bevy::prelude::*;
+use crate::prelude::*;
 
 pub mod prelude {
     pub use super::{Level, SelectLevel};
@@ -42,49 +40,27 @@ fn start_level(
 ) {
     next_state.set(GState::InGame);
 
-    // spawn player
-    commands.spawn(PlayerBundle::default());
+    let player = commands.spawn(()).id();
+    Control.attach(&mut commands, player);
+    Mob::Dart.attach(&mut commands, player);
 
     println!("{level:?}");
     // load level
     match level.0 {
         0 => {
-            commands.spawn((
-                Mob::Dart,
-                Team::Enemy,
-                Enemy,
-                Bullet,
-                HitDamage(1),
-                HitRadius(UNIT),
-                Blocc {
-                    x: 0.0,
-                    y: 250.0,
-                    w: UNIT * 2.0,
-                    h: UNIT * 2.0,
-                    color: Color::RED,
-                    ..default()
-                }
-                .bundle(),
-                Vel(Vec2::new(0.0, -50.0)),
-            ));
-            commands.spawn((
-                Mob::Dart,
-                Team::Enemy,
-                Enemy,
-                Bullet,
-                HitDamage(1),
-                HitRadius(UNIT),
-                Blocc {
-                    x: 0.0,
-                    y: 500.0,
-                    w: UNIT * 2.0,
-                    h: UNIT * 2.0,
-                    color: Color::RED,
-                    ..default()
-                }
-                .bundle(),
-                Vel(Vec2::new(0.0, -50.0)),
-            ));
+            let vel = Vel(Vec2::new(0.0, -50.0));
+            let bullet = commands.spawn(()).id();
+            Team::Enemy.attach(&mut commands, bullet);
+            Mob::Dart.attach(&mut commands, bullet);
+            commands
+                .entity(bullet)
+                .insert((vel, Transform::from_xyz(0.0, 250.0, 0.0)));
+            let bullet = commands.spawn(()).id();
+            Team::Enemy.attach(&mut commands, bullet);
+            Mob::Dart.attach(&mut commands, bullet);
+            commands
+                .entity(bullet)
+                .insert((vel, Transform::from_xyz(0.0, 500.0, 0.0)));
         }
         _ => {}
     }

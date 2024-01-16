@@ -1,6 +1,4 @@
-use crate::game::prelude::*;
-
-use bevy::prelude::*;
+use crate::prelude::*;
 
 pub mod prelude {
     pub use super::Mob;
@@ -13,16 +11,28 @@ pub enum Mob {
     Dart,
 }
 
-impl Mob {
-    pub fn attach(self, commands: &mut Commands, entity: Entity) {
+impl Pack for Mob {
+    fn attach(self, commands: &mut Commands, entity: Entity) {
         let mut cmd = commands.entity(entity);
+        // two insertion types with respective conversion conventions:
+        // - stuff that we always have (self, sprite, hp, ..)
+        //   - stuff that we know ahead of time (self, hp, ..) => Type::from(mob)
+        //   - stuff that needs game resources (sprite, ..) => mob.method() -> Type
+        // - stuff that we might have (hitdamage, weapon)
+        //   - stuff that we know ahead of time (weapon, ..) => Type::try_from(mob)
+        //   - stuff that needs game resources (no examples yet) => mob.method() -> Option<Type>
         cmd.insert((
             self,
+            self.sprite(),
+            Vel::default(),
             Hp::from(self),
+            DamageTaken::default(),
             HitRadius::from(self),
-            HitDamage::from(self),
         ));
-        if let Some(weapon) = self.weapon() {
+        if let Ok(hit_dmg) = HitDamage::try_from(self) {
+            cmd.insert(hit_dmg);
+        }
+        if let Ok(weapon) = Weapon::try_from(self) {
             cmd.insert((weapon, WeaponState::default()));
         }
 
@@ -31,14 +41,23 @@ impl Mob {
             _ => {}
         };
     }
+}
 
-    pub fn weapon(self) -> Option<Weapon> {
-        use Mob as M;
-        use Weapon as W;
-        Some(match self {
-            M::Dart => W::Basic,
-            _ => return None,
-        })
+impl Mob {
+    pub fn sprite(self) -> SpriteBundle {
+        use Mob::*;
+        let radius = HitRadius::from(self).0;
+        let color = match self {
+            Pellet => Color::RED,
+            Dart => Color::BLUE,
+        };
+        Blocc {
+            w: radius * 2.0,
+            h: radius * 2.0,
+            color,
+            ..default()
+        }
+        .bundle()
     }
 }
 
@@ -64,12 +83,32 @@ impl From<Mob> for HitRadius {
     }
 }
 
-impl From<Mob> for HitDamage {
-    fn from(value: Mob) -> Self {
+impl TryFrom<Mob> for Weapon {
+    type Error = ();
+
+    fn try_from(value: Mob) -> Result<Self, Self::Error> {
+        use Mob as M;
+        use Weapon as W;
+        Ok(match value {
+            M::Dart => W::Basic,
+            _ => return Err(()),
+        })
+    }
+}
+
+impl TryFrom<Mob> for HitDamage {
+    type Error = ();
+
+    fn try_from(value: Mob) -> Result<Self, Self::Error> {
         use Mob::*;
-        Self(match value {
+        let dmg = match value {
             Pellet => 1,
             Dart => 1,
-        })
+        };
+        if dmg == 0 {
+            Err(())
+        } else {
+            Ok(Self(dmg))
+        }
     }
 }

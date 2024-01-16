@@ -1,6 +1,6 @@
-use crate::game::prelude::*;
+use crate::prelude::*;
 
-use bevy::{ecs::query::QuerySingleError, prelude::*};
+use bevy::ecs::query::QuerySingleError;
 
 pub mod prelude {
     pub use super::{
@@ -100,7 +100,7 @@ pub struct MobHit {
 fn hit_mob(
     mut commands: Commands,
     mut hit_mobs: Query<(&mut DamageTaken, &Sprite, Option<&PhaseShell>)>,
-    mut hitter_mobs: Query<&HitDamage>,
+    hitter_mobs: Query<&HitDamage>,
     mut hit_events: EventReader<MobHit>,
 ) {
     for MobHit { hit, hitter } in hit_events.read() {
@@ -123,7 +123,6 @@ fn hit_mob(
 }
 
 fn hurt_mob(
-    mut commands: Commands,
     mut mobs: Query<(Entity, &mut DamageTaken, &mut Hp, &Mob, Option<&PhaseShell>)>,
     mut death_events: EventWriter<MobDeath>,
 ) {

@@ -1,6 +1,4 @@
-use crate::game::prelude::*;
-
-use bevy::prelude::*;
+use crate::prelude::*;
 
 pub mod prelude {
     pub use super::{Flashing, Ghost, IFramePack, Lifespan, PhaseShell};
@@ -57,7 +55,7 @@ impl Ghost {
     }
 }
 
-fn ghost(mut commands: Commands, time: Res<Time>, mut objects: Query<(Entity, &Ghost)>) {
+fn ghost(mut commands: Commands, mut objects: Query<(Entity, &Ghost)>) {
     let now = Instant::now();
     objects.for_each_mut(|(entity, ghost)| {
         if now > ghost.expiry {

@@ -1,6 +1,4 @@
-use crate::game::prelude::*;
-
-use bevy::prelude::*;
+use crate::prelude::*;
 
 pub mod prelude {
     pub use super::{Bullet, Weapon, WeaponState};

@@ -1,6 +1,4 @@
-use crate::game::prelude::*;
-
-use bevy::prelude::*;
+use crate::prelude::*;
 
 pub mod prelude {
     pub use super::Enemy;
@@ -21,7 +19,7 @@ pub struct Enemy;
 
 fn hit_enemy_with_bullet(
     mut hit: Query<(Entity, &Transform, &HitRadius), (With<Enemy>, Without<Ghost>)>,
-    hitters: Query<(Entity, &Transform, &HitRadius), (With<Player>, With<Bullet>, Without<Ghost>)>,
+    hitters: Query<(Entity, &Transform, &HitRadius), (With<Player>, Without<Ghost>)>,
     mut hit_events: EventWriter<MobHit>,
 ) {
     for (a_id, a_tf, a_hr) in hit.iter_mut() {

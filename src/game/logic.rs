@@ -1,6 +1,4 @@
-use crate::game::prelude::*;
-
-use bevy::prelude::*;
+use crate::prelude::*;
 
 pub mod prelude {
     pub use super::{motion, GState, Vel};
@@ -54,7 +52,7 @@ fn restart(mut restart_events: EventReader<Restart>, mut next_state: ResMut<Next
     next_state.set(GState::Waiting);
 }
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Clone, Copy, PartialEq, Default, Deref, DerefMut)]
 pub struct Vel(pub Vec2);
 
 pub fn motion(time: Res<Time>, mut movers: Query<(&Vel, &mut Transform)>) {
