@@ -25,7 +25,7 @@ fn select_level(
     mut level: ResMut<Level>,
     mut next_state: ResMut<NextState<GState>>,
 ) {
-    let Some(SelectLevel(selected_level)) = level_events.into_iter().last() else {
+    let Some(SelectLevel(selected_level)) = level_events.read().last() else {
         return;
     };
     *level = *selected_level;
@@ -50,11 +50,11 @@ fn start_level(
     match level.0 {
         0 => {
             commands.spawn((
+                Mob::Dart,
                 Team::Enemy,
                 Enemy,
                 Bullet,
-                BodyDamage(1),
-                Mob,
+                HitDamage(1),
                 HitRadius(UNIT),
                 Blocc {
                     x: 0.0,
@@ -68,11 +68,11 @@ fn start_level(
                 Vel(Vec2::new(0.0, -50.0)),
             ));
             commands.spawn((
+                Mob::Dart,
                 Team::Enemy,
                 Enemy,
                 Bullet,
-                BodyDamage(1),
-                Mob,
+                HitDamage(1),
                 HitRadius(UNIT),
                 Blocc {
                     x: 0.0,

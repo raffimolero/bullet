@@ -3,7 +3,7 @@ use crate::game::prelude::*;
 use bevy::prelude::*;
 
 pub mod prelude {
-    pub use super::{Bullet, Weapon, WeaponType};
+    pub use super::{Bullet, Weapon, WeaponState};
 }
 
 pub struct Plug;
@@ -17,16 +17,14 @@ impl Plugin for Plug {
 pub struct Bullet;
 
 #[derive(Component, Clone, Copy)]
-pub struct Weapon {
-    pub cooldown: Duration,
+pub struct WeaponState {
     pub next_available: Instant,
     pub firing: bool,
 }
 
-impl Default for Weapon {
+impl Default for WeaponState {
     fn default() -> Self {
         Self {
-            cooldown: Duration::from_secs(1),
             next_available: Instant::now(),
             firing: false,
         }
@@ -34,15 +32,15 @@ impl Default for Weapon {
 }
 
 #[derive(Component, Clone, Copy, Default)]
-pub enum WeaponType {
+pub enum Weapon {
     #[default]
     Basic,
 }
 
-impl WeaponType {
+impl Weapon {
     pub fn fire(self, commands: &mut Commands, transform: Transform, team: Team) {
         match self {
-            WeaponType::Basic => {
+            Weapon::Basic => {
                 let mut blocc = Blocc {
                     w: UNIT * 2.0,
                     h: UNIT * 2.0,
@@ -55,8 +53,8 @@ impl WeaponType {
                 let bullet = commands
                     .spawn((
                         Bullet,
-                        BodyDamage(1),
-                        Mob,
+                        HitDamage(1),
+                        Mob::Pellet,
                         HitRadius(UNIT),
                         blocc,
                         Vel(vel.truncate()),
@@ -69,18 +67,20 @@ impl WeaponType {
 
     pub fn cooldown(self) -> Duration {
         Duration::from_secs_f32(match self {
-            WeaponType::Basic => 1.0,
+            Weapon::Basic => 1.0,
         })
     }
 }
 
-fn fire(mut commands: Commands, mut weapons: Query<(&Transform, &mut Weapon, &WeaponType, &Team)>) {
+fn fire(
+    mut commands: Commands,
+    mut weapons: Query<(&Transform, &mut WeaponState, &Weapon, &Team)>,
+) {
     let now = Instant::now();
     weapons.for_each_mut(|(tf, mut wpn, wpn_ty, team)| {
-        println!("test");
         if wpn.firing && now > wpn.next_available {
             wpn_ty.fire(&mut commands, *tf, *team);
-            wpn.next_available += wpn_ty.cooldown();
+            wpn.next_available = now + wpn_ty.cooldown();
         }
     });
 }

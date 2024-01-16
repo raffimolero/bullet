@@ -31,13 +31,16 @@ fn lifespan(mut commands: Commands, objects: Query<(Entity, &Lifespan)>) {
 /// A status effect that gives IFrames when hit.
 #[derive(Component, Clone, Copy)]
 pub struct PhaseShell {
-    min_dmg: i32,
-    max_dmg: i32,
+    pub dmg: i32,
+    pub duration: Duration,
 }
 
-impl PhaseShell {
-    pub fn clamp(self, dmg: i32) -> i32 {
-        dmg.clamp(self.min_dmg, self.max_dmg)
+impl Default for PhaseShell {
+    fn default() -> Self {
+        Self {
+            dmg: 1,
+            duration: Duration::from_secs(1),
+        }
     }
 }
 

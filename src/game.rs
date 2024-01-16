@@ -7,6 +7,7 @@ pub mod prelude {
     };
     pub use std::{
         f32::consts::TAU,
+        ops::{Add, AddAssign},
         time::{Duration, Instant},
     };
 }
