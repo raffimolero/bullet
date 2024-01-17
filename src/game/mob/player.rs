@@ -42,6 +42,7 @@ fn control(
         return;
     };
 
+    // keyboard input
     let spd = 200.0;
     let mut mov = Vec2::ZERO;
     if keys.pressed(KeyCode::W) {
@@ -59,7 +60,6 @@ fn control(
     mov = spd * mov.normalize_or_zero();
 
     wpn.firing = keys.pressed(KeyCode::Space);
-
     vel.0 = mov;
 }
 

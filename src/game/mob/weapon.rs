@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::{Bullet, Weapon, WeaponState};
+    pub use super::{Weapon, WeaponState};
 }
 
 pub struct Plug;
@@ -10,9 +10,6 @@ impl Plugin for Plug {
         app.add_systems(Update, (fire).run_if(in_state(GState::InGame)));
     }
 }
-
-#[derive(Component, Clone, Copy)]
-pub struct Bullet;
 
 #[derive(Component, Clone, Copy)]
 pub struct WeaponState {
@@ -30,9 +27,18 @@ impl Default for WeaponState {
 }
 
 #[derive(Component, Clone, Copy, Default)]
+pub struct Target(Option<Entity>);
+
+#[derive(Component, Clone, Copy, Default)]
 pub enum Weapon {
     #[default]
     Basic,
+}
+
+impl Pack for Weapon {
+    fn attach(self, commands: &mut EntityCommands) {
+        commands.insert((self, WeaponState::default(), Target::default()));
+    }
 }
 
 impl Weapon {

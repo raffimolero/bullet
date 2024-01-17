@@ -4,8 +4,8 @@ use bevy::ecs::query::QuerySingleError;
 
 pub mod prelude {
     pub use super::{
-        data::prelude::*, effect::prelude::*, enemy::prelude::*, player::prelude::*, DamageTaken,
-        HitDamage, HitRadius, Hp, MobDeath, MobHit, Team, UNIT,
+        data::prelude::*, effect::prelude::*, enemy::prelude::*, player::prelude::*,
+        weapon::prelude::*, DamageTaken, HitDamage, HitRadius, Hp, MobDeath, MobHit, Team, UNIT,
     };
 }
 
@@ -13,13 +13,14 @@ pub mod data;
 pub mod effect;
 pub mod enemy;
 pub mod player;
+pub mod weapon;
 
 pub struct Plug;
 impl Plugin for Plug {
     fn build(&self, app: &mut App) {
         app.add_event::<MobHit>()
             .add_event::<MobDeath>()
-            .add_plugins((player::Plug, enemy::Plug, effect::Plug))
+            .add_plugins((player::Plug, enemy::Plug, effect::Plug, weapon::Plug))
             .add_systems(
                 Update,
                 (hit_mob, hurt_mob, mob_death)

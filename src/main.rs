@@ -1,10 +1,7 @@
 pub mod game;
 
 pub mod prelude {
-    pub use super::game::{
-        blocc::prelude::*, level::prelude::*, logic::prelude::*, mob::prelude::*, pack::prelude::*,
-        weapon::prelude::*,
-    };
+    pub use super::game::prelude::*;
     pub use bevy::prelude::*;
     pub use std::{
         f32::consts::TAU,

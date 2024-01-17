@@ -32,7 +32,7 @@ impl Pack for Mob {
             commands.insert(hit_dmg);
         }
         if let Ok(weapon) = Weapon::try_from(self) {
-            commands.insert((weapon, WeaponState::default()));
+            commands.attach(weapon);
         }
 
         use Mob as M;

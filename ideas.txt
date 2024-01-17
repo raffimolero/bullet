@@ -21,5 +21,5 @@ They're trying to rain hell? Let's see how they like their own bullets.
 
 =================================================
 
-Lab+Pond: Interactive bestiary where creatures are kept in lab chambers and can be spawned in actual controllable simulations.
-creatures are initially shown to have no AI, but once captured, there will be options to spawn it in the pond and even control it yourself.
+Lab+Pond: Interactive bestiary where creatures you have captured are kept in stasis chambers and can be spawned in actual controllable simulations.
+creatures are initially shown to have no Brain, but there will be options to spawn it in the pond, give it a brain, and even control it yourself.
