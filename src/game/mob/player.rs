@@ -64,19 +64,17 @@ fn control(
     vel.0 = mov;
 }
 
-// TODO: GlobalTransform
 fn hit_player_with_bullet(
-    hit: Query<(Entity, &Transform, &HitRadius), (With<Player>, Without<Ghost>)>,
-    hitters: Query<(Entity, &Transform, &HitRadius), (With<Enemy>, Without<Ghost>)>,
+    hit: Query<(Entity, &GlobalTransform, &HitRadius), (With<Player>, Without<Ghost>)>,
+    hitters: Query<(Entity, &GlobalTransform, &HitRadius), (With<Enemy>, Without<Ghost>)>,
     mut hit_events: EventWriter<MobHit>,
 ) {
-    for (a_id, a_tf, a_hr) in hit.iter() {
-        for (b_id, b_tf, b_hr) in hitters.iter() {
-            let c = a_hr.0 + b_hr.0;
-            let d2 = a_tf
-                .translation
-                .truncate()
-                .distance_squared(b_tf.translation.truncate());
+    for (a_id, a_gtf, a_hr) in hit.iter() {
+        for (b_id, b_gtf, b_hr) in hitters.iter() {
+            let (a_scl, _a_rot, a_tl) = a_gtf.to_scale_rotation_translation();
+            let (b_scl, _b_rot, b_tl) = b_gtf.to_scale_rotation_translation();
+            let c = a_scl.x.max(a_scl.y) * a_hr.0 + b_scl.x.max(b_scl.y) * b_hr.0;
+            let d2 = a_tl.truncate().distance_squared(b_tl.truncate());
             if d2 < c * c {
                 hit_events.send(MobHit {
                     hit: a_id,
