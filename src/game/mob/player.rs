@@ -27,11 +27,10 @@ pub struct Player;
 pub struct Control;
 
 impl Pack for Control {
-    fn attach(self, commands: &mut Commands, entity: Entity) {
+    fn attach(self, commands: &mut EntityCommands) {
         commands
-            .entity(entity)
+            .attach(Team::Player)
             .insert((self, PhaseShell::default()));
-        Team::Player.attach(commands, entity);
     }
 }
 

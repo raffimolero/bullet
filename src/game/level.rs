@@ -40,26 +40,22 @@ fn start_level(
 ) {
     next_state.set(GState::InGame);
 
-    let player = commands.spawn(()).id();
-    Control.attach(&mut commands, player);
-    Mob::Dart.attach(&mut commands, player);
+    let player = commands.spawn(()).attach(Control).attach(Mob::Dart).id();
 
     println!("{level:?}");
     // load level
     match level.0 {
         0 => {
             let vel = Vel(Vec2::new(0.0, -50.0));
-            let bullet = commands.spawn(()).id();
-            Team::Enemy.attach(&mut commands, bullet);
-            Mob::Dart.attach(&mut commands, bullet);
             commands
-                .entity(bullet)
+                .spawn(())
+                .attach(Team::Enemy)
+                .attach(Mob::Dart)
                 .insert((vel, Transform::from_xyz(0.0, 250.0, 0.0)));
-            let bullet = commands.spawn(()).id();
-            Team::Enemy.attach(&mut commands, bullet);
-            Mob::Dart.attach(&mut commands, bullet);
             commands
-                .entity(bullet)
+                .spawn(())
+                .attach(Team::Enemy)
+                .attach(Mob::Dart)
                 .insert((vel, Transform::from_xyz(0.0, 500.0, 0.0)));
         }
         _ => {}

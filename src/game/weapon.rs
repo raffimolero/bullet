@@ -40,11 +40,10 @@ impl Weapon {
         match self {
             Weapon::Basic => {
                 let vel = transform.with_translation(Vec3::ZERO) * Vec3::new(0.0, 50.0, 0.0);
-                let bullet = commands.spawn(()).id();
-                Mob::Pellet.attach(commands, bullet);
-                team.attach(commands, bullet);
                 commands
-                    .entity(bullet)
+                    .spawn(())
+                    .attach(Mob::Pellet)
+                    .attach(team)
                     .insert((transform, Vel(vel.truncate())));
             }
         }

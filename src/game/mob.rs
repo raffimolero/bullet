@@ -41,13 +41,12 @@ pub enum Team {
 #[derive(Component, Clone, Copy)]
 pub struct Neutral;
 
-impl Team {
-    pub fn attach(self, commands: &mut Commands, entity: Entity) {
-        let mut cmd = commands.entity(entity);
+impl Pack for Team {
+    fn attach(self, commands: &mut EntityCommands) {
         match self {
-            Team::Player => cmd.insert((self, Player)),
-            Team::Neutral => cmd.insert((self, Neutral)),
-            Team::Enemy => cmd.insert((self, Enemy)),
+            Team::Player => commands.insert((self, Player)),
+            Team::Neutral => commands.insert((self, Neutral)),
+            Team::Enemy => commands.insert((self, Enemy)),
         };
     }
 }

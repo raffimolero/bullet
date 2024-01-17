@@ -12,8 +12,7 @@ pub enum Mob {
 }
 
 impl Pack for Mob {
-    fn attach(self, commands: &mut Commands, entity: Entity) {
-        let mut cmd = commands.entity(entity);
+    fn attach(self, commands: &mut EntityCommands) {
         // two insertion types with respective conversion conventions:
         // - stuff that we always have (self, sprite, hp, ..)
         //   - stuff that we know ahead of time (self, hp, ..) => Type::from(mob)
@@ -21,7 +20,7 @@ impl Pack for Mob {
         // - stuff that we might have (hitdamage, weapon)
         //   - stuff that we know ahead of time (weapon, ..) => Type::try_from(mob)
         //   - stuff that needs game resources (no examples yet) => mob.method() -> Option<Type>
-        cmd.insert((
+        commands.insert((
             self,
             self.sprite(),
             Vel::default(),
@@ -30,10 +29,10 @@ impl Pack for Mob {
             HitRadius::from(self),
         ));
         if let Ok(hit_dmg) = HitDamage::try_from(self) {
-            cmd.insert(hit_dmg);
+            commands.insert(hit_dmg);
         }
         if let Ok(weapon) = Weapon::try_from(self) {
-            cmd.insert((weapon, WeaponState::default()));
+            commands.insert((weapon, WeaponState::default()));
         }
 
         use Mob as M;
