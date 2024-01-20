@@ -4,14 +4,18 @@ use bevy::ecs::query::QuerySingleError;
 
 pub mod prelude {
     pub use super::{
-        data::prelude::*, effect::prelude::*, enemy::prelude::*, player::prelude::*,
-        weapon::prelude::*, DamageTaken, HitDamage, HitRadius, Hp, MobDeath, MobHit, Team, UNIT,
+        brain::prelude::*, data::prelude::*, effect::prelude::*, enemy::prelude::*,
+        player::prelude::*, weapon::prelude::*, DamageTaken, HitDamage, HitRadius, Hp, MobDeath,
+        MobHit, Team, UNIT,
     };
 }
 
+pub const UNIT: f32 = 2.0;
+
+pub mod brain;
+pub mod collide;
 pub mod data;
 pub mod effect;
-pub mod enemy;
 pub mod player;
 pub mod weapon;
 
@@ -20,35 +24,13 @@ impl Plugin for Plug {
     fn build(&self, app: &mut App) {
         app.add_event::<MobHit>()
             .add_event::<MobDeath>()
-            .add_plugins((player::Plug, enemy::Plug, effect::Plug, weapon::Plug))
+            .add_plugins((player::Plug, collide::Plug, effect::Plug, weapon::Plug))
             .add_systems(
                 Update,
                 (hit_mob, hurt_mob, mob_death)
                     .chain()
                     .run_if(in_state(GState::InGame)),
             );
-    }
-}
-
-pub const UNIT: f32 = 2.0;
-
-#[derive(Component, Clone, Copy, PartialEq, Eq)]
-pub enum Team {
-    Player,
-    Neutral,
-    Enemy,
-}
-
-#[derive(Component, Clone, Copy)]
-pub struct Neutral;
-
-impl Pack for Team {
-    fn attach(self, commands: &mut EntityCommands) {
-        match self {
-            Team::Player => commands.insert((self, Player)),
-            Team::Neutral => commands.insert((self, Neutral)),
-            Team::Enemy => commands.insert((self, Enemy)),
-        };
     }
 }
 

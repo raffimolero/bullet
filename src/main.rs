@@ -5,7 +5,7 @@ pub mod prelude {
     pub use bevy::prelude::*;
     pub use std::{
         f32::consts::TAU,
-        ops::{Add, AddAssign},
+        ops::{Add, AddAssign, Mul, MulAssign},
         time::{Duration, Instant},
     };
 }

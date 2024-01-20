@@ -1,12 +1,14 @@
 use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::Mob;
+    pub use super::*;
 }
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum Mob {
     Pellet,
+    Pod,
+    Spore,
     #[default]
     Dart,
 }
@@ -23,7 +25,8 @@ impl Pack for Mob {
         commands.insert((
             self,
             self.sprite(),
-            Vel::default(),
+            MaxDTf::default(),
+            DeltaTf::default(),
             Hp::from(self),
             DamageTaken::default(),
             HitRadius::from(self),
@@ -33,6 +36,9 @@ impl Pack for Mob {
         }
         if let Ok(weapon) = Weapon::try_from(self) {
             commands.attach(weapon);
+        }
+        if let Ok(brain) = BrainState::try_from(self) {
+            commands.attach(brain);
         }
 
         use Mob as M;
@@ -103,11 +109,21 @@ impl TryFrom<Mob> for HitDamage {
         let dmg = match value {
             Pellet => 1,
             Dart => 1,
+            Mosquito => 1,
         };
         if dmg == 0 {
             Err(())
         } else {
             Ok(Self(dmg))
         }
+    }
+}
+
+impl TryFrom<Mob> for BrainState {
+    type Error = ();
+
+    fn try_from(value: Mob) -> Result<Self, Self::Error> {
+        use Mob::*;
+        matches!(value,)
     }
 }

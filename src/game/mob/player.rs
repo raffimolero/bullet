@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::{Control, Player, PlayerDeath};
+    pub use super::{Control, PlayerDeath};
 }
 
 pub struct Plug;
@@ -9,20 +9,12 @@ impl Plugin for Plug {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerDeath>().add_systems(
             Update,
-            (
-                control.before(motion),
-                (hit_player_with_bullet.before(super::hit_mob), player_death)
-                    .after(motion)
-                    .chain(),
-            )
-                .run_if(in_state(GState::InGame)),
+            (control.in_set(Think), player_death).run_if(in_state(GState::InGame)),
         );
     }
 }
 
-#[derive(Component, Clone, Copy)]
-pub struct Player;
-
+// TODO: TakeOver event
 #[derive(Component, Clone, Copy)]
 pub struct Control;
 
@@ -35,10 +27,18 @@ impl Pack for Control {
 }
 
 fn control(
-    mut player: Query<(&mut Vel, &mut WeaponState), With<Control>>,
+    time: Res<Time>,
+    mut player: Query<
+        (
+            &mut Transform,
+            Option<&mut Target>,
+            Option<&mut Acceleration>,
+        ),
+        With<Control>,
+    >,
     keys: Res<Input<KeyCode>>,
 ) {
-    let Ok((mut vel, mut wpn)) = player.get_single_mut() else {
+    let Ok((mut tf, mut brain)) = player.get_single_mut() else {
         return;
     };
 
@@ -58,30 +58,21 @@ fn control(
         mov.x -= 1.0;
     }
     mov = spd * mov.normalize_or_zero();
+    mov = (tf.with_translation(Vec3::ZERO) * mov.extend(1.0)).truncate();
 
-    wpn.firing = keys.pressed(KeyCode::Space);
-    vel.0 = mov;
-}
-
-fn hit_player_with_bullet(
-    hit: Query<(Entity, &GlobalTransform, &HitRadius), (With<Player>, Without<Ghost>)>,
-    hitters: Query<(Entity, &GlobalTransform, &HitRadius), (With<Enemy>, Without<Ghost>)>,
-    mut hit_events: EventWriter<MobHit>,
-) {
-    for (a_id, a_gtf, a_hr) in hit.iter() {
-        for (b_id, b_gtf, b_hr) in hitters.iter() {
-            let (a_scl, _a_rot, a_tl) = a_gtf.to_scale_rotation_translation();
-            let (b_scl, _b_rot, b_tl) = b_gtf.to_scale_rotation_translation();
-            let c = a_scl.x.max(a_scl.y) * a_hr.0 + b_scl.x.max(b_scl.y) * b_hr.0;
-            let d2 = a_tl.truncate().distance_squared(b_tl.truncate());
-            if d2 < c * c {
-                hit_events.send(MobHit {
-                    hit: a_id,
-                    hitter: b_id,
-                })
-            }
-        }
+    let spd = TAU / 2.0;
+    let mut rot = 0.0;
+    if keys.pressed(KeyCode::E) {
+        rot += 1.0;
     }
+    if keys.pressed(KeyCode::Q) {
+        rot -= 1.0;
+    }
+    rot *= spd;
+
+    brain.desired_vel = mov;
+    brain.desired_rot_spd = rot;
+    brain.firing = keys.pressed(KeyCode::Space);
 }
 
 #[derive(Event)]

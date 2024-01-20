@@ -27,9 +27,6 @@ impl Default for WeaponState {
 }
 
 #[derive(Component, Clone, Copy, Default)]
-pub struct Target(Option<Entity>);
-
-#[derive(Component, Clone, Copy, Default)]
 pub enum Weapon {
     #[default]
     Basic,
@@ -46,11 +43,13 @@ impl Weapon {
         match self {
             Weapon::Basic => {
                 let vel = transform.with_translation(Vec3::ZERO) * Vec3::new(0.0, 50.0, 0.0);
-                commands
-                    .spawn(())
-                    .attach(Mob::Pellet)
-                    .attach(team)
-                    .insert((transform, Vel(vel.truncate())));
+                commands.spawn(()).attach(Mob::Pellet).attach(team).insert((
+                    transform,
+                    DeltaTf {
+                        velocity: vel.truncate(),
+                        ..default()
+                    },
+                ));
             }
         }
     }

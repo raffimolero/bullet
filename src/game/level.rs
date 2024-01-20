@@ -40,23 +40,26 @@ fn start_level(
 ) {
     next_state.set(GState::InGame);
 
-    let player = commands.spawn(()).attach(Control).attach(Mob::Dart).id();
+    // let player = commands.spawn(()).attach(Control).attach(Mob::Dart).id();
 
     println!("{level:?}");
     // load level
     match level.0 {
         0 => {
-            let vel = Vel(Vec2::new(0.0, -50.0));
+            let dtf = DeltaTf {
+                velocity: Vec2::new(0.0, -50.0),
+                ..default()
+            };
             commands
                 .spawn(())
                 .attach(Team::Enemy)
                 .attach(Mob::Dart)
-                .insert((vel, Transform::from_xyz(0.0, 250.0, 0.0)));
+                .insert((dtf, Transform::from_xyz(0.0, 250.0, 0.0)));
             commands
                 .spawn(())
                 .attach(Team::Enemy)
                 .attach(Mob::Dart)
-                .insert((vel, Transform::from_xyz(0.0, 500.0, 0.0)));
+                .insert((dtf, Transform::from_xyz(0.0, 500.0, 0.0)));
         }
         _ => {}
     }

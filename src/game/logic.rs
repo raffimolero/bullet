@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::{motion, CursorPos, GState, MainCam, Vel};
+    pub use super::{CursorPos, GState, MainCam};
     pub use bevy::window::PrimaryWindow;
 }
 
@@ -16,7 +16,6 @@ impl Plugin for Plug {
                 Update,
                 (
                     (update_cursor, track_cursor).chain(),
-                    motion.run_if(in_state(GState::InGame)),
                     (restart_bind, restart).chain(),
                 ),
             );
@@ -107,15 +106,5 @@ fn track_cursor(
     trackers.for_each_mut(|mut tf| {
         tf.translation.x = world_cursor_pos.x;
         tf.translation.y = world_cursor_pos.y;
-    });
-}
-
-#[derive(Component, Clone, Copy, PartialEq, Default, Deref, DerefMut)]
-pub struct Vel(pub Vec2);
-
-pub fn motion(time: Res<Time>, mut movers: Query<(&Vel, &mut Transform)>) {
-    let delta = time.delta_seconds();
-    movers.for_each_mut(|(vel, mut tf)| {
-        tf.translation += vel.0.extend(0.0) * delta;
     });
 }

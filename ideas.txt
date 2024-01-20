@@ -21,5 +21,32 @@ They're trying to rain hell? Let's see how they like their own bullets.
 
 =================================================
 
+Pathogen lab: Main game. Start by observing a pond and choosing a small host to take over.
+Start with a faulty test tube, leak into a vent into the nature room or the robotics rooms.
+
 Lab+Pond: Interactive bestiary where creatures you have captured are kept in stasis chambers and can be spawned in actual controllable simulations.
 creatures are initially shown to have no Brain, but there will be options to spawn it in the pond, give it a brain, and even control it yourself.
+
+=================================================
+MOBS
+
+pods
+- your starting mob
+- shaped like pea pods at first but fatten into egg shapes
+- inflate themselves and die when they get too big
+- pods always release spores when they die; the amount grows based on the size of the hive
+spores
+- short lifespan
+- fly out of pods in a straight line
+- can possess darts and give them AI
+darts
+- triangles
+- attack mosquitoes
+- bash into their target with high velocity but low acceleration
+- becomes a pod on contact with a second spore
+queens
+- larger creatures that release lifeless darts
+mosquitoes
+- hit and run specialists
+- orbit in ellipses around their target and shoot pellets at them when close
+- attack pods, and darts
