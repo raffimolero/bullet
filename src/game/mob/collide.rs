@@ -9,9 +9,7 @@ impl Plugin for Plug {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (hit_enemy_with_bullet.before(super::hit_mob))
-                .after(Motion)
-                .run_if(in_state(GState::InGame)),
+            (hit_enemy_with_bullet).in_set(GameLoop::CollideCheck),
         );
     }
 }

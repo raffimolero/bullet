@@ -50,3 +50,25 @@ mosquitoes
 - hit and run specialists
 - orbit in ellipses around their target and shoot pellets at them when close
 - attack pods, and darts
+
+leapfrogs
+- type of bullet
+- short lifespan
+- spawns another leapfrog on death
+
+wave
+- bullet that shoots more bullets
+
+traps
+- 1hp, long lifespan (triggers when damaged)
+- spawns a certain status effect radius on death
+
+missile pods
+- no hitbox, short lifespan
+- shoots out a missile after death
+
+sparks
+- no hitbox, short lifespan
+- explodes after death
+sparklers
+- shoot out sparks in a radius

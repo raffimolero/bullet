@@ -9,7 +9,10 @@ impl Plugin for Plug {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerDeath>().add_systems(
             Update,
-            (control.in_set(Think), player_death).run_if(in_state(GState::InGame)),
+            (
+                control.in_set(GameLoop::Control),
+                player_death.in_set(GameLoop::Meta),
+            ),
         );
     }
 }

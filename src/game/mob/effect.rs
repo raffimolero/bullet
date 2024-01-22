@@ -1,27 +1,35 @@
 use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::{Flashing, Ghost, IFramePack, Lifespan, PhaseShell};
+    pub use super::{Dying, Flashing, Ghost, IFramePack, Lifespan, PhaseShell};
 }
 
 pub struct Plug;
 impl Plugin for Plug {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (ghost, flash, lifespan).run_if(in_state(GState::InGame)),
-        );
+        app.add_systems(Update, (ghost, flash, lifespan).in_set(GameLoop::Effect));
     }
 }
 
 #[derive(Component)]
+pub struct Dying;
+
+#[derive(Component)]
 pub struct Lifespan(pub Instant);
 
-fn lifespan(mut commands: Commands, objects: Query<(Entity, &Lifespan)>) {
+fn lifespan(
+    mut commands: Commands,
+    objects: Query<(Entity, &Lifespan, Option<&Mob>)>,
+    mut death_events: EventWriter<MobDeath>,
+) {
     let now = Instant::now();
-    objects.for_each(|(entity, lifespan)| {
-        if now > lifespan.0 {
-            commands.entity(entity).despawn_recursive();
+    objects.for_each(|(id, lifespan, mob)| {
+        if now <= lifespan.0 {
+            return;
+        }
+        match mob {
+            Some(mob) => death_events.send(MobDeath { id, mob }),
+            None => commands.entity(id).despawn_recursive(),
         }
     });
 }

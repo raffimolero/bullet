@@ -7,33 +7,27 @@ pub mod prelude {
 pub struct Plug;
 impl Plugin for Plug {
     fn build(&self, app: &mut App) {
-        app.add_schedule(
-            Think
-                .run_if(in_state(GState::InGame).before(Motion))
-                .add_systems(Update, think.in_set(Think)),
-        );
+        app.add_systems(Update, think.in_set(GameLoop::Think));
     }
 }
-
-#[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Think;
 
 #[derive(Component, Clone, Copy, Default)]
 pub struct Target(Option<Entity>);
 
 #[derive(Component, Clone, Copy, Default)]
-pub struct DesiredDTf(pub DeltaTf);
+pub struct DesiredVel(pub Velocity);
 
 #[derive(Component, Clone, Copy, Default)]
 pub struct BrainState {
     next_thought: Instant,
 }
 
-fn think(mut mobs: Query<(&Mob, &mut BrainState)>) {
+// TODO: all the read only params.
+fn think(mut mobs: Query<(&Mob, &mut BrainState, &mut Target, &mut DesiredVel)>) {
     let now = Instant::now();
     mobs.for_each_mut(|(mob, mut brain_st)| {
         if now > brain_st.next_thought {
-            mob
+            mob.think()
         }
     });
 }
@@ -42,13 +36,11 @@ fn think(mut mobs: Query<(&Mob, &mut BrainState)>) {
 pub struct BrainBundle {
     pub target: Target,
     pub weapon_state: WeaponState,
-    pub desired_dtf: DesiredDTf,
+    pub desired_dtf: DesiredVel,
 }
 
-fn act_dtf(mut mobs: Query<(&DesiredDTf, Option<&mut DeltaTf>)>) {
-    mobs.for_each_mut(|(dv, v)| {
-        if let Some(mut v) = v {
-            v = dv;
-        }
+fn act_vel(mut mobs: Query<(&DesiredVel, &mut Acceleration)>) {
+    mobs.for_each_mut(|(dv, mut v)| {
+        v = dv;
     });
 }

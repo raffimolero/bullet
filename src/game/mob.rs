@@ -4,9 +4,9 @@ use bevy::ecs::query::QuerySingleError;
 
 pub mod prelude {
     pub use super::{
-        brain::prelude::*, data::prelude::*, effect::prelude::*, enemy::prelude::*,
-        player::prelude::*, weapon::prelude::*, DamageTaken, HitDamage, HitRadius, Hp, MobDeath,
-        MobHit, Team, UNIT,
+        brain::prelude::*, collide::prelude::*, data::prelude::*, effect::prelude::*,
+        player::prelude::*, weapon::prelude::*, DamageTaken, HitDamage, HitRadius, Hp, LastHitBy,
+        MobDeath, MobHit, UNIT,
     };
 }
 
@@ -29,7 +29,7 @@ impl Plugin for Plug {
                 Update,
                 (hit_mob, hurt_mob, mob_death)
                     .chain()
-                    .run_if(in_state(GState::InGame)),
+                    .in_set(GameLoop::CollideAct),
             );
     }
 }
@@ -72,6 +72,9 @@ impl Default for HitRadius {
 
 #[derive(Component, Default)]
 pub struct HitDamage(pub i32);
+
+#[derive(Component, Default)]
+pub struct LastHitBy(pub Option<Entity>);
 
 #[derive(Event)]
 pub struct MobHit {
@@ -151,6 +154,6 @@ fn mob_death(
         if Some(death.id) == player {
             p_death_events.send(PlayerDeath);
         }
-        commands.entity(death.id).despawn_recursive();
+        commands.entity(death.id).insert(Dying);
     }
 }

@@ -16,8 +16,7 @@ impl Plugin for Plug {
                 friction,
             )
                 .chain()
-                // TODO: fix systemset
-                .in_set(Motion),
+                .in_set(GameLoop::Move),
         );
     }
 }

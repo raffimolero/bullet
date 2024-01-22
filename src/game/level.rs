@@ -9,7 +9,7 @@ impl Plugin for Plug {
     fn build(&self, app: &mut App) {
         app.add_event::<SelectLevel>()
             .insert_resource(Level(0))
-            .add_systems(Update, select_level)
+            .add_systems(Update, select_level.in_set(GameLoop::Meta))
             .add_systems(OnEnter(GState::Waiting), start_level)
             .add_systems(OnExit(GState::InGame), end_level);
     }
@@ -46,7 +46,7 @@ fn start_level(
     // load level
     match level.0 {
         0 => {
-            let dtf = DeltaTf {
+            let vel = Velocity {
                 velocity: Vec2::new(0.0, -50.0),
                 ..default()
             };
@@ -54,12 +54,12 @@ fn start_level(
                 .spawn(())
                 .attach(Team::Enemy)
                 .attach(Mob::Dart)
-                .insert((dtf, Transform::from_xyz(0.0, 250.0, 0.0)));
+                .insert((vel, Transform::from_xyz(0.0, 250.0, 0.0)));
             commands
                 .spawn(())
                 .attach(Team::Enemy)
                 .attach(Mob::Dart)
-                .insert((dtf, Transform::from_xyz(0.0, 500.0, 0.0)));
+                .insert((vel, Transform::from_xyz(0.0, 500.0, 0.0)));
         }
         _ => {}
     }

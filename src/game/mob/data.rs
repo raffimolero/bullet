@@ -7,27 +7,30 @@ pub mod prelude {
 #[derive(Component, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum Mob {
     Pellet,
-    Pod,
     Spore,
+    Pod,
     #[default]
     Dart,
+    Mosquito,
 }
 
 impl Pack for Mob {
     fn attach(self, commands: &mut EntityCommands) {
-        // two insertion types with respective conversion conventions:
+        // insertion types with respective conversion conventions:
         // - stuff that we always have (self, sprite, hp, ..)
+        //   - stuff that never changes (mass, ..) => mob.method() -> Type
         //   - stuff that we know ahead of time (self, hp, ..) => Type::from(mob)
-        //   - stuff that needs game resources (sprite, ..) => mob.method() -> Type
+        //   - stuff that needs game resources (sprite, ..) => mob.method(args) -> Type
         // - stuff that we might have (hitdamage, weapon)
         //   - stuff that we know ahead of time (weapon, ..) => Type::try_from(mob)
-        //   - stuff that needs game resources (no examples yet) => mob.method() -> Option<Type>
+        //   - stuff that needs game resources (no examples yet) => mob.method(args) -> Option<Type>
         commands.insert((
             self,
             self.sprite(),
             MaxDTf::default(),
             DeltaTf::default(),
             Hp::from(self),
+            LastHitBy::default(),
             DamageTaken::default(),
             HitRadius::from(self),
         ));
@@ -41,7 +44,6 @@ impl Pack for Mob {
             commands.attach(brain);
         }
 
-        use Mob as M;
         match self {
             _ => {}
         };
@@ -50,11 +52,13 @@ impl Pack for Mob {
 
 impl Mob {
     pub fn sprite(self) -> SpriteBundle {
-        use Mob::*;
         let radius = HitRadius::from(self).0;
         let color = match self {
-            Pellet => Color::RED,
-            Dart => Color::BLUE,
+            Mob::Pellet => Color::RED,
+            Mob::Spore => Color::YELLOW,
+            Mob::Pod => Color::BEIGE,
+            Mob::Dart => Color::BLUE,
+            Mob::Mosquito => Color::GRAY,
         };
         Blocc {
             w: radius * 2.0,
@@ -68,21 +72,25 @@ impl Mob {
 
 impl From<Mob> for Hp {
     fn from(value: Mob) -> Self {
-        use Mob::*;
         Self(match value {
-            Pellet => 1,
-            Dart => 3,
+            Mob::Pellet => 1,
+            Mob::Spore => 1,
+            Mob::Pod => 5,
+            Mob::Dart => 3,
+            Mob::Mosquito => 2,
         })
     }
 }
 
 impl From<Mob> for HitRadius {
     fn from(value: Mob) -> Self {
-        use Mob::*;
         Self(
             UNIT * match value {
                 Pellet => 1.0,
-                Dart => 3.0,
+                Spore => 1.0,
+                Pod => 6.0,
+                Dart => 4.0,
+                Mosquito => 3.0,
             },
         )
     }
@@ -92,24 +100,27 @@ impl TryFrom<Mob> for Weapon {
     type Error = ();
 
     fn try_from(value: Mob) -> Result<Self, Self::Error> {
-        use Mob as M;
         use Weapon as W;
         Ok(match value {
-            M::Dart => W::Basic,
+            Mob::Dart => W::Basic,
             _ => return Err(()),
         })
     }
 }
 
+// TODO: add "hit influence" enum
+// imparts force on impact. either outward or in a specific direction.
+
 impl TryFrom<Mob> for HitDamage {
     type Error = ();
 
     fn try_from(value: Mob) -> Result<Self, Self::Error> {
-        use Mob::*;
         let dmg = match value {
-            Pellet => 1,
-            Dart => 1,
-            Mosquito => 1,
+            Mob::Pellet => 1,
+            Mob::Spore => 1,
+            Mob::Pod => 0,
+            Mob::Dart => 3,
+            Mob::Mosquito => 2,
         };
         if dmg == 0 {
             Err(())
@@ -123,7 +134,9 @@ impl TryFrom<Mob> for BrainState {
     type Error = ();
 
     fn try_from(value: Mob) -> Result<Self, Self::Error> {
-        use Mob::*;
-        matches!(value,)
+        match value {
+            Mob::Dart | Mob::Mosquito => Ok(Self),
+            _ => Err(()),
+        }
     }
 }

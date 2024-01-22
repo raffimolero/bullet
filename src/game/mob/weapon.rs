@@ -45,7 +45,7 @@ impl Weapon {
                 let vel = transform.with_translation(Vec3::ZERO) * Vec3::new(0.0, 50.0, 0.0);
                 commands.spawn(()).attach(Mob::Pellet).attach(team).insert((
                     transform,
-                    DeltaTf {
+                    Velocity {
                         velocity: vel.truncate(),
                         ..default()
                     },

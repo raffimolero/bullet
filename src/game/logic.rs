@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::{CursorPos, GState, MainCam};
+    pub use super::{CursorPos, MainCam};
     pub use bevy::window::PrimaryWindow;
 }
 
@@ -17,7 +17,8 @@ impl Plugin for Plug {
                 (
                     (update_cursor, track_cursor).chain(),
                     (restart_bind, restart).chain(),
-                ),
+                )
+                    .in_set(GameLoop::Meta),
             );
     }
 }
@@ -38,14 +39,6 @@ fn setup(mut commands: Commands, mut select: EventWriter<SelectLevel>) {
         .bundle(),
     ));
     select.send(SelectLevel(Level(0)));
-}
-
-#[derive(States, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum GState {
-    #[default]
-    Dead,
-    Waiting,
-    InGame,
 }
 
 #[derive(Event)]
