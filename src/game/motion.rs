@@ -73,6 +73,13 @@ pub struct MaxAccel {
     pub growth: f32,
 }
 
+fn clamp_bidirectional(val: &mut f32, mut a: f32, mut b: f32) {
+    if a > b {
+        std::mem::swap(&mut a, &mut b);
+    }
+    *val = val.clamp(a, b);
+}
+
 impl MaxAccel {
     fn clamp(self, accel: &mut Acceleration) {
         let Self {
@@ -84,8 +91,8 @@ impl MaxAccel {
         if length_squared > speed * speed {
             accel.velocity *= speed / length_squared.sqrt();
         }
-        accel.rotation = accel.rotation.clamp(-rotation, rotation);
-        accel.growth = accel.growth.clamp(1.0 / self.growth, self.growth);
+        clamp_bidirectional(&mut accel.rotation, -rotation, rotation);
+        clamp_bidirectional(&mut accel.growth, 1.0 / growth, growth);
     }
 }
 

@@ -54,17 +54,9 @@ fn think(
     let now = Instant::now();
     mobs.for_each_mut(|(mob, mut brain_st, gtf, vel, accel, wpn_st, target)| {
         if now > brain_st.next_thought {
-            let target_info = target
-                .as_ref()
-                .and_then(|target| target.0)
-                .and_then(|target| targets.get(target).ok())
-                .map(|(gtf, vel)| TargetInfo {
-                    position: *gtf,
-                    velocity: vel.copied().unwrap_or_default(),
-                });
             brain_st.next_thought = now
                 + mob
-                    .think(gtf, vel, accel, wpn_st, target, target_info)
+                    .think(gtf, vel, accel, wpn_st, target, &targets)
                     .cooldown;
         }
     });
@@ -82,17 +74,39 @@ impl Mob {
         accel: Option<Mut<Acceleration>>,
         wpn_st: Option<Mut<WeaponState>>,
         target: Option<Mut<Target>>,
-        tgt_info: Option<TargetInfo>,
+        targets: &Query<(&GlobalTransform, Option<&Velocity>)>,
     ) -> ThoughtResult {
         // NOTE: global transform and transform are different
         // one could easily attach a dart to a rotated parent and its ai would just break
         let (scl, rot, tl) = pos.to_scale_rotation_translation();
-        match (self, tgt_info) {
-            (Mob::Dart, Some(TargetInfo { position, velocity })) => {
+
+        let target_info = target
+            .as_ref()
+            .and_then(|target| target.0)
+            .and_then(|target| targets.get(target).ok())
+            .map(|(gtf, vel)| TargetInfo {
+                position: *gtf,
+                velocity: vel.copied().unwrap_or_default(),
+            });
+
+        match (self, target_info) {
+            (
+                Mob::Dart,
+                Some(TargetInfo {
+                    position: t_pos,
+                    velocity: t_vel,
+                }),
+            ) => {
                 todo!("face and accelerate towards target")
             }
             (Mob::Dart, None) => {}
-            (Mob::Mosquito, Some(TargetInfo { position, velocity })) => {
+            (
+                Mob::Mosquito,
+                Some(TargetInfo {
+                    position: t_pos,
+                    velocity: t_vel,
+                }),
+            ) => {
                 todo!("face target and shoot, move side to side")
             }
             _ => {}

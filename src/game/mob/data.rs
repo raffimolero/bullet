@@ -31,14 +31,17 @@ impl Pack for Mob {
         commands.insert((
             self,
             self.sprite(),
-            Acceleration::default(),
             Velocity::default(),
+            Acceleration::default(),
             Hp::from(self),
             LastHitBy::default(),
             DamageTaken::default(),
         ));
         if let Ok(hr) = HitRadius::try_from(self) {
             commands.insert(hr);
+        }
+        if let Ok(max_accel) = MaxAccel::try_from(self) {
+            commands.insert(max_accel);
         }
         if let Ok(fric) = Friction::try_from(self) {
             commands.insert(fric);
@@ -132,16 +135,16 @@ impl TryFrom<Mob> for Friction {
 
     fn try_from(value: Mob) -> Result<Self, Self::Error> {
         let base = Friction::default();
-        let none = Err(());
-        let light = Ok(base * 0.5);
-        let medium = Ok(base);
-        let heavy = Ok(base * 2.0);
+        let ice = Err(());
+        let smooth = Ok(base * 0.5);
+        let matte = Ok(base);
+        let rough = Ok(base * 2.0);
         match value {
-            Mob::Pellet => none,
-            Mob::Spore => light,
-            Mob::Pod => heavy,
-            Mob::Dart => medium,
-            Mob::Mosquito => light,
+            Mob::Pellet => ice,
+            Mob::Spore => smooth,
+            Mob::Pod => rough,
+            Mob::Dart => matte,
+            Mob::Mosquito => smooth,
         }
     }
 }
