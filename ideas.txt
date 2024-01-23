@@ -51,6 +51,8 @@ mosquitoes
 - orbit in ellipses around their target and shoot pellets at them when close
 - attack pods, and darts
 
+some sort of rotating rake with multiple hitboxes and gaps between hitboxes
+
 leapfrogs
 - type of bullet
 - short lifespan

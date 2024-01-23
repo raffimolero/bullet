@@ -4,6 +4,8 @@ pub mod prelude {
     pub use super::*;
 }
 
+// TODO: static objects should be bouncy. Negative friction?
+// all mobs have acceleration and velocity right
 #[derive(Component, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum Mob {
     Pellet,
@@ -13,6 +15,8 @@ pub enum Mob {
     Dart,
     Mosquito,
 }
+
+// TODO: MobData struct so we can just specify all the data per mob at once
 
 impl Pack for Mob {
     fn attach(self, commands: &mut EntityCommands) {
@@ -27,13 +31,18 @@ impl Pack for Mob {
         commands.insert((
             self,
             self.sprite(),
-            MaxDTf::default(),
-            DeltaTf::default(),
+            Acceleration::default(),
+            Velocity::default(),
             Hp::from(self),
             LastHitBy::default(),
             DamageTaken::default(),
-            HitRadius::from(self),
         ));
+        if let Ok(hr) = HitRadius::try_from(self) {
+            commands.insert(hr);
+        }
+        if let Ok(fric) = Friction::try_from(self) {
+            commands.insert(fric);
+        }
         if let Ok(hit_dmg) = HitDamage::try_from(self) {
             commands.insert(hit_dmg);
         }
@@ -41,9 +50,10 @@ impl Pack for Mob {
             commands.attach(weapon);
         }
         if let Ok(brain) = BrainState::try_from(self) {
-            commands.attach(brain);
+            commands.insert(brain);
         }
 
+        // other special stuff maybe idk
         match self {
             _ => {}
         };
@@ -52,13 +62,12 @@ impl Pack for Mob {
 
 impl Mob {
     pub fn sprite(self) -> SpriteBundle {
-        let radius = HitRadius::from(self).0;
-        let color = match self {
-            Mob::Pellet => Color::RED,
-            Mob::Spore => Color::YELLOW,
-            Mob::Pod => Color::BEIGE,
-            Mob::Dart => Color::BLUE,
-            Mob::Mosquito => Color::GRAY,
+        let (color, radius) = match self {
+            Mob::Pellet => (Color::RED, 1.0),
+            Mob::Spore => (Color::YELLOW, 1.0),
+            Mob::Pod => (Color::BEIGE, 6.0),
+            Mob::Dart => (Color::BLUE, 4.0),
+            Mob::Mosquito => (Color::GRAY, 3.0),
         };
         Blocc {
             w: radius * 2.0,
@@ -82,17 +91,58 @@ impl From<Mob> for Hp {
     }
 }
 
-impl From<Mob> for HitRadius {
-    fn from(value: Mob) -> Self {
-        Self(
+impl TryFrom<Mob> for HitRadius {
+    type Error = ();
+
+    fn try_from(value: Mob) -> Result<Self, Self::Error> {
+        Ok(Self(
             UNIT * match value {
-                Pellet => 1.0,
-                Spore => 1.0,
-                Pod => 6.0,
-                Dart => 4.0,
-                Mosquito => 3.0,
+                Mob::Pellet => 1.0,
+                Mob::Spore => 1.0,
+                Mob::Pod => 6.0,
+                Mob::Dart => 4.0,
+                Mob::Mosquito => 3.0,
+                _ => return Err(()),
             },
-        )
+        ))
+    }
+}
+
+impl TryFrom<Mob> for MaxAccel {
+    type Error = ();
+
+    fn try_from(value: Mob) -> Result<Self, Self::Error> {
+        let base = MaxAccel::default();
+        let none = Err(());
+        let light = Ok(base * 0.5);
+        let medium = Ok(base);
+        let heavy = Ok(base * 2.0);
+        match value {
+            Mob::Pellet => none,
+            Mob::Spore => light,
+            Mob::Pod => heavy,
+            Mob::Dart => medium,
+            Mob::Mosquito => light,
+        }
+    }
+}
+
+impl TryFrom<Mob> for Friction {
+    type Error = ();
+
+    fn try_from(value: Mob) -> Result<Self, Self::Error> {
+        let base = Friction::default();
+        let none = Err(());
+        let light = Ok(base * 0.5);
+        let medium = Ok(base);
+        let heavy = Ok(base * 2.0);
+        match value {
+            Mob::Pellet => none,
+            Mob::Spore => light,
+            Mob::Pod => heavy,
+            Mob::Dart => medium,
+            Mob::Mosquito => light,
+        }
     }
 }
 
@@ -102,7 +152,7 @@ impl TryFrom<Mob> for Weapon {
     fn try_from(value: Mob) -> Result<Self, Self::Error> {
         use Weapon as W;
         Ok(match value {
-            Mob::Dart => W::Basic,
+            Mob::Mosquito => W::Basic,
             _ => return Err(()),
         })
     }
@@ -135,7 +185,7 @@ impl TryFrom<Mob> for BrainState {
 
     fn try_from(value: Mob) -> Result<Self, Self::Error> {
         match value {
-            Mob::Dart | Mob::Mosquito => Ok(Self),
+            Mob::Dart | Mob::Mosquito => Ok(Self::default()),
             _ => Err(()),
         }
     }

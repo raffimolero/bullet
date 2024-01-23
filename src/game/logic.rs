@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::{CursorPos, MainCam};
+    pub use super::{CursorPos, CursorTracker, MainCam};
     pub use bevy::window::PrimaryWindow;
 }
 

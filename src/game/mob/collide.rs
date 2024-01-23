@@ -14,6 +14,7 @@ impl Plugin for Plug {
     }
 }
 
+// TODO: Arc<()> per team
 #[derive(Component, Clone, Copy, PartialEq, Eq)]
 pub enum Team {
     Player,

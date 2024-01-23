@@ -40,7 +40,7 @@ fn start_level(
 ) {
     next_state.set(GState::InGame);
 
-    // let player = commands.spawn(()).attach(Control).attach(Mob::Dart).id();
+    let player = commands.spawn(()).attach(Control).attach(Mob::Dart).id();
 
     println!("{level:?}");
     // load level
@@ -66,6 +66,7 @@ fn start_level(
 }
 
 fn end_level(mut commands: Commands, entities: Query<Entity, With<Mob>>) {
+    dbg!();
     entities.for_each(|id| {
         commands.entity(id).despawn_recursive();
     });

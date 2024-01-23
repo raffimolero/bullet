@@ -1,46 +1,110 @@
+/*!
+    Brain components:
+Acceleration
+WeaponState
+Target
+*/
+
 use crate::prelude::*;
 
 pub mod prelude {
-    pub use super::{BrainBundle, BrainState, Target};
+    pub use super::{BrainState, Target};
 }
 
 pub struct Plug;
 impl Plugin for Plug {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, think.in_set(GameLoop::Think));
+        app.add_systems(Update, think.in_set(GameLoop::Ai));
     }
 }
 
 #[derive(Component, Clone, Copy, Default)]
 pub struct Target(Option<Entity>);
 
-#[derive(Component, Clone, Copy, Default)]
-pub struct DesiredVel(pub Velocity);
+pub struct TargetInfo {
+    position: GlobalTransform,
+    velocity: Velocity,
+}
 
-#[derive(Component, Clone, Copy, Default)]
+#[derive(Component, Clone, Copy)]
 pub struct BrainState {
     next_thought: Instant,
 }
 
-// TODO: all the read only params.
-fn think(mut mobs: Query<(&Mob, &mut BrainState, &mut Target, &mut DesiredVel)>) {
+impl Default for BrainState {
+    fn default() -> Self {
+        Self {
+            next_thought: Instant::now(),
+        }
+    }
+}
+
+fn think(
+    mut mobs: Query<(
+        &Mob,
+        &mut BrainState,
+        &GlobalTransform,
+        &Velocity,
+        Option<&mut Acceleration>,
+        Option<&mut WeaponState>,
+        Option<&mut Target>,
+    )>,
+    targets: Query<(&GlobalTransform, Option<&Velocity>)>,
+) {
     let now = Instant::now();
-    mobs.for_each_mut(|(mob, mut brain_st)| {
+    mobs.for_each_mut(|(mob, mut brain_st, gtf, vel, accel, wpn_st, target)| {
         if now > brain_st.next_thought {
-            mob.think()
+            let target_info = target
+                .as_ref()
+                .and_then(|target| target.0)
+                .and_then(|target| targets.get(target).ok())
+                .map(|(gtf, vel)| TargetInfo {
+                    position: *gtf,
+                    velocity: vel.copied().unwrap_or_default(),
+                });
+            brain_st.next_thought = now
+                + mob
+                    .think(gtf, vel, accel, wpn_st, target, target_info)
+                    .cooldown;
         }
     });
 }
 
-#[derive(Bundle)]
-pub struct BrainBundle {
-    pub target: Target,
-    pub weapon_state: WeaponState,
-    pub desired_dtf: DesiredVel,
+struct ThoughtResult {
+    cooldown: Duration,
 }
 
-fn act_vel(mut mobs: Query<(&DesiredVel, &mut Acceleration)>) {
-    mobs.for_each_mut(|(dv, mut v)| {
-        v = dv;
-    });
+impl Mob {
+    fn think(
+        self,
+        pos: &GlobalTransform,
+        vel: &Velocity,
+        accel: Option<Mut<Acceleration>>,
+        wpn_st: Option<Mut<WeaponState>>,
+        target: Option<Mut<Target>>,
+        tgt_info: Option<TargetInfo>,
+    ) -> ThoughtResult {
+        // NOTE: global transform and transform are different
+        // one could easily attach a dart to a rotated parent and its ai would just break
+        let (scl, rot, tl) = pos.to_scale_rotation_translation();
+        match (self, tgt_info) {
+            (Mob::Dart, Some(TargetInfo { position, velocity })) => {
+                todo!("face and accelerate towards target")
+            }
+            (Mob::Dart, None) => {}
+            (Mob::Mosquito, Some(TargetInfo { position, velocity })) => {
+                todo!("face target and shoot, move side to side")
+            }
+            _ => {}
+        }
+        ThoughtResult {
+            cooldown: Duration::from_millis(200),
+        }
+    }
 }
+
+// fn act_vel(mut mobs: Query<(&DesiredVel, &mut Acceleration)>) {
+//     mobs.for_each_mut(|(dv, mut v)| {
+//         v = dv;
+//     });
+// }

@@ -28,8 +28,8 @@ fn lifespan(
             return;
         }
         match mob {
-            Some(mob) => death_events.send(MobDeath { id, mob }),
-            None => commands.entity(id).despawn_recursive(),
+            Some(mob) => death_events.send(MobDeath { id, mob: *mob }),
+            None => commands.entity(dbg!(id)).despawn_recursive(),
         }
     });
 }

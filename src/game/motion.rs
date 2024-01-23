@@ -7,7 +7,7 @@ pub mod prelude {
 pub struct Plug;
 impl Plugin for Plug {
     fn build(&self, app: &mut App) {
-        app.add_schedule.add_systems(
+        app.add_systems(
             Update,
             (
                 cap_acceleration,
@@ -63,13 +63,13 @@ fn cap_motion(mut movers: Query<(&MaxDTf, &mut Velocity)>) {
 }
 */
 
-#[derive(Component, Clone, Copy, PartialEq)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Default)]
 pub struct MaxAccel {
-    /// omnidirectional.
+    /// omnidirectional, additive.
     pub speed: f32,
-    /// bidirectional.
+    /// bidirectional, additive.
     pub rotation: f32,
-    /// bidirectional.
+    /// bidirectional, additive.
     pub growth: f32,
 }
 
@@ -89,13 +89,30 @@ impl MaxAccel {
     }
 }
 
+impl MulAssign<f32> for MaxAccel {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.speed *= rhs;
+        self.rotation *= rhs;
+        self.growth *= rhs;
+    }
+}
+
+impl Mul<f32> for MaxAccel {
+    type Output = Self;
+
+    fn mul(mut self, rhs: f32) -> Self::Output {
+        self *= rhs;
+        self
+    }
+}
+
 fn cap_acceleration(mut movers: Query<(&MaxAccel, &mut Acceleration)>) {
     movers.for_each_mut(|(max, mut accel)| {
         max.clamp(&mut accel);
     });
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Default)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Default)]
 pub struct Acceleration {
     /// additive.
     pub velocity: Vec2,
@@ -134,7 +151,7 @@ impl Add<Acceleration> for Velocity {
     type Output = Self;
 
     fn add(mut self, rhs: Acceleration) -> Self::Output {
-        self *= rhs;
+        self += rhs;
         self
     }
 }
@@ -142,11 +159,11 @@ impl Add<Acceleration> for Velocity {
 fn acceleration(time: Res<Time>, mut movers: Query<(&Acceleration, &mut Velocity)>) {
     let delta = time.delta_seconds();
     movers.for_each_mut(|(accel, mut vel)| {
-        vel += accel * delta;
+        *vel += *accel * delta;
     });
 }
 
-#[derive(Component, Clone, Copy, PartialEq)]
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub struct Velocity {
     /// additive.
     pub velocity: Vec2,
@@ -201,14 +218,14 @@ impl Mul<Velocity> for Transform {
     }
 }
 
-pub fn motion(time: Res<Time>, mut movers: Query<(&Transform, &mut Transform)>) {
+pub fn motion(time: Res<Time>, mut movers: Query<(&Velocity, &mut Transform)>) {
     let delta = time.delta_seconds();
-    movers.for_each_mut(|(dtf, mut tf)| {
-        *tf *= dtf * delta;
+    movers.for_each_mut(|(vel, mut tf)| {
+        *tf *= *vel * delta;
     });
 }
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct Friction {
     /// multiplicative.
     pub speed: f32,
@@ -220,7 +237,7 @@ pub struct Friction {
 
 impl Default for Friction {
     fn default() -> Self {
-        const FACTOR: f32 = 1.0 - 1.0 / (1 >> 8) as f32;
+        const FACTOR: f32 = 1.0 - 1.0 / (1 << 2) as f32;
         Self {
             speed: FACTOR,
             rotation: FACTOR,
@@ -250,7 +267,7 @@ impl MulAssign<Friction> for Velocity {
     fn mul_assign(&mut self, rhs: Friction) {
         self.velocity *= rhs.speed;
         self.rotation *= rhs.rotation;
-        self.growth *= rhs.growth;
+        self.growth = self.growth.powf(rhs.growth);
     }
 }
 
@@ -266,6 +283,6 @@ impl Mul<Friction> for Velocity {
 fn friction(time: Res<Time>, mut movers: Query<(&Friction, &mut Velocity)>) {
     let delta = time.delta_seconds();
     movers.for_each_mut(|(fric, mut vel)| {
-        vel *= fric * delta;
+        *vel *= *fric * delta;
     });
 }

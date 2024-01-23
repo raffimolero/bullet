@@ -19,7 +19,7 @@ impl Plugin for Plug {
     fn build(&self, app: &mut App) {
         app.configure_set(Startup, (Setup::Basic, Setup::Debug).chain())
             .configure_set(
-                Update,
+                FixedUpdate,
                 (
                     GameLoop::Meta,
                     GameLoop::Control,

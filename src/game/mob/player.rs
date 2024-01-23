@@ -33,15 +33,18 @@ fn control(
     time: Res<Time>,
     mut player: Query<
         (
-            &mut Transform,
-            Option<&mut Target>,
+            Option<&MaxAccel>,
             Option<&mut Acceleration>,
+            Option<&mut Target>,
+            Option<&mut WeaponState>,
         ),
         With<Control>,
     >,
+    cursor_tracker: Query<&GlobalTransform, With<CursorTracker>>,
+    clicks: Res<Input<MouseButton>>,
     keys: Res<Input<KeyCode>>,
 ) {
-    let Ok((mut tf, mut brain)) = player.get_single_mut() else {
+    let Ok((max_accel, accel, target, wpn_st)) = player.get_single_mut() else {
         return;
     };
 
@@ -60,8 +63,8 @@ fn control(
     if keys.pressed(KeyCode::A) {
         mov.x -= 1.0;
     }
-    mov = spd * mov.normalize_or_zero();
-    mov = (tf.with_translation(Vec3::ZERO) * mov.extend(1.0)).truncate();
+    // TODO: when adding static object bounciness, player should be able to shake a bit.
+    mov = spd * mov.normalize_or_zero() * max_accel.map_or(0.0, |max_accel| max_accel.speed);
 
     let spd = TAU / 2.0;
     let mut rot = 0.0;
@@ -73,9 +76,17 @@ fn control(
     }
     rot *= spd;
 
-    brain.desired_vel = mov;
-    brain.desired_rot_spd = rot;
-    brain.firing = keys.pressed(KeyCode::Space);
+    if let Some(mut accel) = accel {
+        *accel = Acceleration {
+            velocity: mov,
+            rotation: rot,
+            // maybe some other time we'll have growth controls
+            growth: 0.0,
+        }
+    }
+    if let Some(mut wpn_st) = wpn_st {
+        wpn_st.firing = keys.pressed(KeyCode::Space) || clicks.pressed(MouseButton::Left);
+    }
 }
 
 #[derive(Event)]
