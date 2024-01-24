@@ -40,7 +40,7 @@ fn start_level(
 ) {
     next_state.set(GState::InGame);
 
-    let player = commands.spawn(()).attach(Control).attach(Mob::Dart).id();
+    let player = commands.spawn(()).attach(Mob::Dart).attach(Control).id();
 
     println!("{level:?}");
     // load level

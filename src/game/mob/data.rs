@@ -37,24 +37,26 @@ impl Pack for Mob {
             LastHitBy::default(),
             DamageTaken::default(),
         ));
-        if let Ok(hr) = HitRadius::try_from(self) {
-            commands.insert(hr);
+
+        macro_rules! try_attach {
+            ($cmd:ident .pack( $pack:ident ) $(. $method:ident ( $comp:ident ) )*) => {
+                $(
+                    if let Ok(comp) = $comp::try_from($pack) {
+                        $cmd.$method(comp);
+                    }
+                )*
+            };
         }
-        if let Ok(max_accel) = MaxAccel::try_from(self) {
-            commands.insert(max_accel);
-        }
-        if let Ok(fric) = Friction::try_from(self) {
-            commands.insert(fric);
-        }
-        if let Ok(hit_dmg) = HitDamage::try_from(self) {
-            commands.insert(hit_dmg);
-        }
-        if let Ok(weapon) = Weapon::try_from(self) {
-            commands.attach(weapon);
-        }
-        if let Ok(brain) = BrainState::try_from(self) {
-            commands.insert(brain);
-        }
+        try_attach! {
+            commands
+                .pack(self)
+                .insert(HitRadius)
+                .insert(MaxAccel)
+                .insert(Friction)
+                .insert(HitDamage)
+                .attach(Weapon)
+                .insert(BrainState)
+        };
 
         // other special stuff maybe idk
         match self {
