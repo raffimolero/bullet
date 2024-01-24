@@ -29,11 +29,6 @@ impl Pack for Control {
     }
 }
 
-// FIXME: no movement.
-// possible causes:
-// data not added
-// control too weak
-// system not run
 fn control(
     time: Res<Time>,
     mut player: Query<
