@@ -11,7 +11,7 @@ impl Plugin for Plug {
     }
 }
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct WeaponState {
     pub next_available: Instant,
     pub firing: bool,
@@ -26,7 +26,7 @@ impl Default for WeaponState {
     }
 }
 
-#[derive(Component, Clone, Copy, Default)]
+#[derive(Component, Debug, Clone, Copy, Default)]
 pub enum Weapon {
     #[default]
     Basic,

@@ -1,7 +1,8 @@
 pub mod game;
+pub mod util;
 
 pub mod prelude {
-    pub use super::game::prelude::*;
+    pub use super::{game::prelude::*, util::prelude::*};
     pub use bevy::prelude::*;
     pub use std::{
         f32::consts::TAU,
