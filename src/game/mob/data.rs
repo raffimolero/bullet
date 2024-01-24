@@ -117,11 +117,15 @@ impl TryFrom<Mob> for MaxAccel {
     type Error = ();
 
     fn try_from(value: Mob) -> Result<Self, Self::Error> {
-        let base = MaxAccel::default();
+        let base = MaxAccel {
+            speed: UNIT * 256.0,
+            rotation: TAU,
+            growth: 0.0,
+        };
         let none = Err(());
-        let light = Ok(base * 0.5);
+        let heavy = Ok(base * 0.5);
         let medium = Ok(base);
-        let heavy = Ok(base * 2.0);
+        let light = Ok(base * 2.0);
         match value {
             Mob::Pellet => none,
             Mob::Spore => light,

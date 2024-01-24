@@ -53,6 +53,11 @@ fn control(
         return;
     };
 
+    // TODO: choose target on right click
+    // first highlight plausible target with the cursor tracker
+    // then highlight actual target with a separate tracker
+    // it shrinks and hides under the player when there is no target
+
     // keyboard input
     let spd = 200.0;
     let mut mov = Vec2::ZERO;

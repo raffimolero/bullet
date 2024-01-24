@@ -63,7 +63,7 @@ fn cap_motion(mut movers: Query<(&MaxDTf, &mut Velocity)>) {
 }
 */
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub struct MaxAccel {
     /// omnidirectional, additive.
     pub speed: f32,
@@ -244,7 +244,7 @@ pub struct Friction {
 
 impl Default for Friction {
     fn default() -> Self {
-        const FACTOR: f32 = 1.0 - 1.0 / (1 << 2) as f32;
+        const FACTOR: f32 = 0.5;
         Self {
             speed: FACTOR,
             rotation: FACTOR,
