@@ -9,13 +9,13 @@ impl Plugin for Plug {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (hit_enemy_with_bullet).in_set(GameLoop::CollideCheck),
+            (hit_enemy_with_bullet, hit_player_with_bullet).in_set(GameLoop::CollideCheck),
         );
     }
 }
 
 // TODO: Arc<()> per team
-#[derive(Component, Clone, Copy, PartialEq, Eq)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Team {
     Player,
     Neutral,
@@ -32,11 +32,11 @@ impl Pack for Team {
     }
 }
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct Player;
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct Neutral;
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct Enemy;
 
 fn hit_enemy_with_bullet(

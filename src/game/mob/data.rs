@@ -6,7 +6,7 @@ pub mod prelude {
 
 // TODO: static objects should be bouncy. Negative friction?
 // all mobs have acceleration and velocity right
-#[derive(Component, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum Mob {
     Pellet,
     Spore,

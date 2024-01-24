@@ -23,7 +23,7 @@ impl Plugin for Plug {
 
 /*
 /// clamps a DeltaTf.
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct MaxDTf {
     pub speed: f32,
     pub rotation: f32,

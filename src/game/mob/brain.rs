@@ -18,7 +18,7 @@ impl Plugin for Plug {
     }
 }
 
-#[derive(Component, Clone, Copy, Default)]
+#[derive(Component, Debug, Clone, Copy, Default)]
 pub struct Target(Option<Entity>);
 
 pub struct TargetInfo {
@@ -26,7 +26,7 @@ pub struct TargetInfo {
     velocity: Velocity,
 }
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct BrainState {
     next_thought: Instant,
 }

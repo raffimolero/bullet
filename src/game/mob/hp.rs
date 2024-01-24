@@ -19,7 +19,7 @@ impl Plugin for Plug {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Hp(pub i32);
 
 impl Default for Hp {
@@ -43,10 +43,10 @@ impl Add for Hp {
     }
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Debug, Default)]
 pub struct DamageTaken(pub i32);
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct HitRadius(pub f32);
 
 impl Default for HitRadius {
@@ -55,10 +55,10 @@ impl Default for HitRadius {
     }
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Debug, Default)]
 pub struct HitDamage(pub i32);
 
-#[derive(Component, Default)]
+#[derive(Component, Debug, Default)]
 pub struct LastHitBy(pub Option<Entity>);
 
 #[derive(Event)]
@@ -74,20 +74,25 @@ fn hit_mob(
     mut hit_events: EventReader<MobHit>,
 ) {
     for MobHit { hit, hitter } in hit_events.read() {
+        dbg!();
         let Ok(dmg) = hitter_mobs.get(*hitter) else {
             continue;
         };
+        dbg!(dmg);
         if dmg.0 == 0 {
             continue;
         }
+        dbg!();
         let Ok((mut dmg_tkn, sprite, shell)) = hit_mobs.get_mut(*hit) else {
             continue;
         };
+        dbg!(&dmg_tkn);
         if let Some(_shell) = shell {
             commands
                 .entity(*hit)
                 .insert(IFramePack::new(sprite.color).bundle());
         }
+        dbg!();
         dmg_tkn.0 += dmg.0;
     }
 }
@@ -97,26 +102,31 @@ fn hurt_mob(
     mut death_events: EventWriter<MobDeath>,
 ) {
     mobs.for_each_mut(|(id, mut dmg_tkn, mut hp, mob, shell)| {
+        dbg!();
         if dmg_tkn.0 == 0 {
             return;
         }
+        dbg!();
         if hp.0 <= 0 {
             return;
         }
+        dbg!();
         let dmg = if let Some(shell) = shell {
             shell.dmg
         } else {
             dmg_tkn.0
         };
         dmg_tkn.0 = 0;
+        dbg!(dmg);
         hp.0 -= dmg;
+        dbg!(&hp);
         if hp.0 <= 0 {
             death_events.send(MobDeath { id, mob: *mob });
         }
     })
 }
 
-#[derive(Event)]
+#[derive(Event, Debug)]
 pub struct MobDeath {
     pub id: Entity,
     pub mob: Mob,

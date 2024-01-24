@@ -31,7 +31,7 @@ impl Plugin for Plug {
                     .chain()
                     .run_if(in_state(GState::InGame)),
             )
-            .add_plugins((motion::Plug, logic::Plug, level::Plug, mob::Plug));
+            .add_plugins((level::Plug, logic::Plug, mob::Plug, motion::Plug));
     }
 }
 

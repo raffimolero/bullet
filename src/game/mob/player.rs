@@ -18,7 +18,7 @@ impl Plugin for Plug {
 }
 
 // TODO: TakeOver event
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct Control;
 
 impl Pack for Control {
@@ -70,7 +70,6 @@ fn control(
     }
     // TODO: when adding static object bounciness, player should be able to shake a bit.
     mov = spd * mov.normalize_or_zero() * max_accel.map_or(0.0, |max_accel| max_accel.speed);
-    dbg!(max_accel);
 
     let spd = TAU / 2.0;
     let mut rot = 0.0;
@@ -89,11 +88,9 @@ fn control(
             // maybe some other time we'll have growth controls
             growth: 0.0,
         };
-        dbg!(accel);
     }
     if let Some(mut wpn_st) = wpn_st {
         wpn_st.firing = keys.pressed(KeyCode::Space) || clicks.pressed(MouseButton::Left);
-        dbg!(wpn_st);
     }
 }
 

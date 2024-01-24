@@ -11,10 +11,10 @@ impl Plugin for Plug {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Dying;
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Lifespan(pub Instant);
 
 fn lifespan(
@@ -35,7 +35,7 @@ fn lifespan(
 }
 
 /// A status effect that gives IFrames when hit.
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct PhaseShell {
     pub dmg: i32,
     pub duration: Duration,
@@ -50,7 +50,7 @@ impl Default for PhaseShell {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Ghost {
     pub expiry: Instant,
 }
@@ -72,7 +72,7 @@ fn ghost(mut commands: Commands, mut objects: Query<(Entity, &Ghost)>) {
     });
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Flashing {
     pub old_color: Color,
     pub col_a: Color,
@@ -139,6 +139,8 @@ impl Default for IFramePack {
         }
     }
 }
+
+// TODO: impl Pack
 
 impl IFramePack {
     pub fn new(old_color: Color) -> Self {

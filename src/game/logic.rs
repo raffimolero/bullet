@@ -23,7 +23,7 @@ impl Plugin for Plug {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct MainCam;
 
 fn setup(mut commands: Commands, mut select: EventWriter<SelectLevel>) {
@@ -78,7 +78,7 @@ fn update_cursor(window: Query<&Window, With<PrimaryWindow>>, mut mouse: ResMut<
     mouse.pos = cursor;
 }
 
-#[derive(Component, Clone, Copy, Default)]
+#[derive(Component, Debug, Clone, Copy, Default)]
 pub struct CursorTracker;
 
 fn track_cursor(
